@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}削除{% endblock %}
+{% block content %}
+<h1>削除</h1>
+
+<form method="post">
+    {% csrf_token %}
+    以下の商品を削除してもよろしいですか？<br>
+    {{ object }}<br>
+    <a href="{% url 'list' %}">戻る</a>
+    <input type="submit" class="btn btn-danger" value="削除">
+</form>
+{% endblock %}
