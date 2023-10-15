@@ -11,15 +11,15 @@
       <th>価格</th>
       <th>カテゴリ</th>
       <th>画像</th>
-      <th>商品の説明</th>
+      <th>商品の詳細説明</th>
     </tr>
   </thead>
   <tr>
     <td>{{ product.name }}</td>
     <td>{{ product.price }}円</td>
     <td>{{ product.category }}</td>
-    <th><img src="{{ product.img.url }}" style="width:100px height:auto;"></th>
-    <th>{{ product.detail }}</th>
+    <td><img src="{{ product.img.url }}" style="width:100px; height:auto;"></td>
+    <td>{{ product.detail }}</td>
   </tr>
   </table>
 <a href="{% url 'list' %}">戻る</a>
