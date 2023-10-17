@@ -1,0 +1,15 @@
+{% extends "album/base.html" %}
+
+{% block content %}
+<div class="container">
+  <img src="{{ photo.image.url }}" width="600px">
+  <p>{{ photo.created_at }}</p>
+  <p>
+    {% for tag in photo.tags.all %}
+    #{{tag}}
+    {% endfor %}
+  </p>
+  <hr>
+  <p>{{ photo.description }}</p>
+</div>
+{% endblock content %}
