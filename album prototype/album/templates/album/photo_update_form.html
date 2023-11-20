@@ -1,0 +1,38 @@
+{% extends "album/base.html" %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <p><a href="{% url 'photo-list' %}">« 戻る</a></p>
+      <div class="card">
+        <div class="card-body">
+          <form method="POST" enctype="multipart/form-data">{% csrf_token %}
+            <div class="mb-3">
+              <label class="form-label">画像</label>
+              {{ form.image | add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">概要</label>
+              {{ form.description | add_class:"form-control"}}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">タグ</label>
+              {{ form.tags | add_class:"form-control" }}
+            </div>
+            <div class="mb-3">
+              <label class="form-label">登録したいタグがない？</label>
+              <input type="text" name="new_tag" class="form-control" id="id_new_tag" placeholder="タグを作成する">
+              <small class="form-text text-muted">複数登録は半角スペースで区切ってください</small>
+            </div>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-primary">更新</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock content %}

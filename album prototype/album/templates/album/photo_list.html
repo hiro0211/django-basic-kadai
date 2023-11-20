@@ -4,8 +4,9 @@
 <section class="py-5 text-center container">
   <div class="row py-lg-5">
     <div class="col-lg-6 col-md-8 mx-auto">
-      <h1 class="fw-light">Django Album</h1>
-      <p class="lead text-muted">思い出を記録しましょう！</p>
+      <h1 class="fw-light">Album</h1>
+      <p class="lead text-muted">好きな写真を記録しましょう！</p>
+      <p><a href="{% url 'photo-create' %}" class="btn btn-secondary my-2">写真を追加する</a></p>
       <p class="pt-4 fs-5">
         {% for tag in tags %}
         <span class="badge rounded-pill bg-light">
@@ -19,19 +20,35 @@
 {% endblock header %}
 
 {% block content %}
+
 <div class="container">
-  <div class="row">
+  <div class="row g-3">
     {% for photo in photos %}
     <div class="col-6 col-md-4">
       <div class="card">
-        <img src="{{ photo.image.url }}" class="card-img-top">
         <div class="card-body">
-          <p class="card-text">
+        <img src="{{ photo.image.url }}" class="card-img-top" style="object-fit: cover; height: 250px;">
+            <p class="mt-2 fs-5">
             {% for tag in photo.tags.all %}
-            #{{tag}}
+            <span class="badge rounded-pill bg-light text-dark">
+              {{tag}}
+            </span>
             {% endfor %}
+            {% if photo.tags.all|length == 0%}
+            <span class="badge rounded-pill bd-light text-dark">
+              No tag
+            </span>
+            {% endif %}
           </p>
-          <a href="{% url 'photo-detail' photo.pk %}">詳細</a>
+          <div class="d-grid gap-2">
+            <a href="{% url 'photo-edit' photo.pk %}" class="btn btn-outline-secondary">編集 »</a>
+          </div>
+          <div class="d-grid gap-2">
+            <a href="{% url 'photo-detail' photo.pk %}" class="btn btn-outline-secondary">詳細 »</a>
+          </div>
+          <div class="d-gird gap2">
+            <a href="{% url 'photo-delete' photo.pk %}" class="btn btn-danger">削除 »</a>
+          </div>
         </div>
       </div>
     </div>

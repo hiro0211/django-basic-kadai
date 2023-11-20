@@ -1,0 +1,38 @@
+{% extends "album/base.html" %}
+
+{% block title %}削除{% endblock %}
+{% block content %}
+
+<div class="container">
+  <div class="row justify-content-center">
+    <div class="col-lg-8 col-md-10">
+      <div class="card">
+        <div class="card-body">
+          <img src="{{ photo.image.url }}" class="img-fluid">
+          <p class="m-3 text-end">{{ photo.created_at }}</p>
+          <p class="fs-5">
+            {% for tag in photo.tags.all %}
+            <span class="badge rounded-pill bd-light text-dark">
+              {{tag}}
+            </span>  
+            {% endfor %}
+          </p>
+          <hr>
+          <p>{{ photo.description }}</p>
+          <form method="post">
+            {% csrf_token %}
+            ・写真を削除してもよろしいですか？<br>
+            <br>
+            {{ object }}<br>
+            <a href="{% url 'photo-list' %}">戻る</a>
+            <div class="d-grid gap-2">
+              <button type="submit" class="btn btn-danger">削除</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock content %}

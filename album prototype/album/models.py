@@ -11,7 +11,7 @@ class Photo(models.Model):
   image = models.ImageField(null=False, blank=False, upload_to="uploads/")
   description = models.TextField(null=True, blank=True)
   created_at = models.DateTimeField(auto_now_add=True)
-  tags = models.ManyToManyField(Tag)
+  tags = models.ManyToManyField(Tag, blank=True)
 
   def __str__(self):
     return os.path.basename(self.image.name)

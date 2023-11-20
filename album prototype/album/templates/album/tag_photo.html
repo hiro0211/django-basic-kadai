@@ -1,0 +1,41 @@
+{% extends "album/base.html" %}
+
+{% block header %}
+<section class="py-5 text-center container">
+  <div class="row py-lg-5">
+    <div class="col-lg-6 col-md-8 mx-auto">
+      <h1 class="fw-light">#{{ tag }}の投稿一覧</h1>
+      <p><a href="{% url 'photo-list' %}" class="btn btn-secondary my-2">一覧へ</a></p>
+    </div>
+  </div>
+</section>
+{% endblock header %}
+
+{% block content %}
+<div class="container">
+  <div class="row g-3">
+    {% for photo in photos %}
+    <div class="col-6 col-md-4">
+      <div class="card">
+        <div class="card-body">
+          <img src="{{ photo.image.url }}" class="card-img-top" style="object-fit: cover; height: 250px;">
+          <p class="mt-2 fs-5">
+            {% for tag in photo.tags.all %}
+            <span class="badge rounded-pill bg-light text-dark">
+              {{tag}}
+            </span>
+            {% endfor %}
+          </p>
+          <div class="d-grid gap-2">
+            <a href="{% url 'photo-edit' photo.pk %}" class="btn btn-outline-secondary">編集 »</a>
+          </div>
+          <div class="d-grid gap-2">
+            <a href="{% url 'photo-detail' photo.pk %}" class="btn btn-outline-secondary">詳細 »</a>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock content %}
