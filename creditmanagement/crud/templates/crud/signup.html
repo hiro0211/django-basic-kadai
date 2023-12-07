@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}ユーザ登録{% endblock %}
+
+{% block content %}
+<div class="row">
+  <div class="col-sm-6">
+    <br>
+    <h1>ユーザ登録</h1>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.non_field_errors }}
+      {% for field in form %}
+      <div class="m-auto">
+        {{ field.label }}
+      </div>
+      <div class="m-auto">
+        {{ field }}
+      </div>
+      <div class="m-auto">
+        {{ field.errors }}
+      </div>
+      {% endfor %}
+      <button class="m-5" type="submit">登録</button>
+    </form>
+  </div>
+</div>
+{% endblock %}
