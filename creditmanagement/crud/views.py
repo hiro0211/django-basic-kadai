@@ -11,7 +11,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.auth import login
 from .forms import SignUpForm
-from django.db.models import Sum
+from django.db.models import Sum, Count
 
 class TopView(TemplateView):
   template_name= "top.html"
@@ -54,4 +54,5 @@ class SignUpView(CreateView):
   
 def calculate_total(request):
     total_credit = Subject.objects.aggregate(Sum('credit'))['credit__sum']
-    return render(request, 'total.html', {'total_credit': total_credit})
+    rest_credit = 128 - total_credit 
+    return render(request, 'total.html', {'total_credit': total_credit, 'rest_credit': rest_credit})

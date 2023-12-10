@@ -18,7 +18,3 @@ class Subject(models.Model):
   
   def get_absolute_url(self):
     return reverse('list')
-
-class Item(models.Model):
-    name = models.CharField(max_length=255)
-    price = models.DecimalField(max_digits=10, decimal_places=2)

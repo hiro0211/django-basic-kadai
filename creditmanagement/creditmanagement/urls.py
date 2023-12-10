@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from crud import views
-from .views import calculate_total
+from crud.views import calculate_total
 
 urlpatterns = [
     path('admin/', admin.site.urls),
