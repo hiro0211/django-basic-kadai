@@ -1,10 +1,12 @@
+from typing import Any
+from django.db.models.query import QuerySet
 from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.http.response import HttpResponseRedirect
-from django.shortcuts import render
-from django.views.generic import TemplateView, ListView
+from django.shortcuts import render, get_object_or_404
+from django.views.generic import TemplateView, ListView,DetailView
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from .models import Subject
+from .models import Subject, Category
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView, LogoutView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -20,6 +22,12 @@ class SubjectListView(LoginRequiredMixin, ListView):
   model = Subject
   paginate_by = 8
 
+  def get_context_data(self, *args, **kwargs):
+    context = super().get_context_data(*args, **kwargs)
+
+    context["categories"] = Category.objects.all()
+    return context
+
 class SubjectCreateView(LoginRequiredMixin, CreateView):
   model = Subject
   fields = '__all__'
@@ -32,6 +40,21 @@ class SubjectUpdateView(LoginRequiredMixin, UpdateView):
 class SubjectDeleteView(LoginRequiredMixin, DeleteView):
   model = Subject
   success_url = reverse_lazy('list')
+
+class SubjectDetailView(LoginRequiredMixin, DetailView):
+  model = Subject
+  context_object_name = 'subject'
+  template_name = "crud/subject_detail.html"
+
+class CategorySubjectListView(ListView):
+  model = Subject
+  template_name = "crud/category_subject.html"
+  context_object_name = "subjects"
+
+  def get_queryset(self, **kwargs):
+    category_name = self.kwargs["category"]
+    category = get_object_or_404(Category, name=category_name)
+    return super().get_queryset().filter(category=category)
 
 class LoginView(LoginView):
   form_class = AuthenticationForm
