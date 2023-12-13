@@ -18,3 +18,8 @@ class Subject(models.Model):
   
   def get_absolute_url(self):
     return reverse('list')
+"""
+class Student(models.Model):
+  name = models.CharField(max_length=100)
+  subjects = models.ManyToManyField(Subject)
+  """

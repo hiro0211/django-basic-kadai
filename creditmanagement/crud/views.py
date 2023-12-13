@@ -79,3 +79,27 @@ def calculate_total(request):
     total_credit = Subject.objects.aggregate(Sum('credit'))['credit__sum']
     rest_credit = 128 - total_credit 
     return render(request, 'total.html', {'total_credit': total_credit, 'rest_credit': rest_credit})
+"""
+def graduation_requirements(request):
+    #student = Student.objects.get()
+    
+    # カテゴリーごとの単位を数える
+    category_credits = {}
+    for subject in Subject.objects.all():
+        if subject.category in category_credits:
+            category_credits[subject.category] += subject.credits
+        else:
+            category_credits[subject.category] = subject.credits
+    
+    # カテゴリーごとの必要な単位数
+    required_credits = {
+        'Elective': 10,
+        'Core': 20,
+        # 他のカテゴリーも追加
+    }
+    
+    # 卒業要件を満たしているかどうかを判定
+    requirements_met = all(category_credits.get(category, 0) >= required_credits[category] for category in required_credits)
+    
+    return render(request, 'graduation_requirements.html', { 'category_credits': category_credits, 'requirements_met': requirements_met})
+  """
