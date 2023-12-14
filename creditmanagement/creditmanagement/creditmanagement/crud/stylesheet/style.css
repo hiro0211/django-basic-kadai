@@ -1,0 +1,20 @@
+.navbar-togger {
+  padding: 0 !important;
+  border: none;
+}
+
+#hamburger_btn_check:checked~.hamburger_btn .btn_close {
+  display: block;
+}
+
+#hamburger_btn_check:checked~.hamburger_btn .btn_open {
+  display: none;
+}
+
+.btn_close {
+  display: none;
+}
+
+#hamburger_btn_check {
+  display: none;
+}

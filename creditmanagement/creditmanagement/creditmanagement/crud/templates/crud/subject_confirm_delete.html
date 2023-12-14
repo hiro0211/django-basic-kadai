@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block title %}削除{% endblock %}
+{% block content %}
+<h1>選択した科目を削除する</h1>
+
+<form method="post">
+  {% csrf_token %}
+  ・本当に選択した科目を削除してもよろしいですか？<br>
+  <h2>{{ object }}</h2><br>
+  <button class="btn btn-primary" onclick="location.href='{% url 'list' %}'">戻る</button>
+  <input type="submit" class="btn btn-danger" value="削除">
+</form>
+{% endblock %}
