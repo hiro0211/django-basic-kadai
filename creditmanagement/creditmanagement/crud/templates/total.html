@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block title %}単位取得状況{% endblock %}
+{% block content %}
+
+<h1>合計取得単位: {{ total_credit }} 単位</h1>
+<h2>卒業まであと合計 {{ rest_credit }} 単位</h2>
+<h2>共通教養科目はあと {{ kyoutu }}単位</h2>
+
+{% if remaining_credits %}
+  <h2>不足している単位</h2>
+  <ul>
+    {% for category, remaining_credit in remaining_credits.items %}
+      <li>{{ category }}: あと {{ remaining_credit }} 単位不足</li>
+    {% endfor %}
+  </ul>
+{% else %}
+  <p>単位要件をすべて満たしています！</p>
+{% endif %}
+
+{% endblock %}

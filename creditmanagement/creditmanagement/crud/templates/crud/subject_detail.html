@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}詳細{% endblock %}
+{% block content %}
+    <h1>成績一覧</h1>
+    <table class="table table-striped table-hover table-bordered">
+      <thead>
+        <tr>
+          <th>科目名</th>
+          <th>単位数</th>
+          <th>素点</th>
+          <th>科目カテゴリ</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tr>
+        <td>{{ subject.name }}</td>
+        <td>{{ subject.credit }}</td>
+        <td>{{ subject.score }}点</td>
+        <td>{{ subject.category }}</td>
+        <td>
+          <button class="btn btn-primary" onclick="location.href='{% url 'edit' pk=subject.pk %}'">編集</button>
+          <button class="btn btn-danger" onclick="location.href='{% url 'delete' pk=subject.pk %}'">削除</button>
+        </td>
+      </tr>
+    </table>
+    <a href="{% url 'list' %}">戻る</a>
+  {% endblock %}

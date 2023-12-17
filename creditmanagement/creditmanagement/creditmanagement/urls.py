@@ -17,6 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from crud import views
+from crud.views import calculate_total, CategorySubjectListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -25,6 +26,10 @@ urlpatterns = [
     path('crud/new/', views.SubjectCreateView.as_view(), name="new"),
     path('crud/edit/<int:pk>', views.SubjectUpdateView.as_view(), name="edit"),
     path('crud/delete/<int:pk>', views.SubjectDeleteView.as_view(), name="delete"),
+    path('crud/detail/<int:pk>', views.SubjectDetailView.as_view(), name="detail"),
+    path('crud/<str:category>/', CategorySubjectListView.as_view(), name="category-subject-list"),
+    path('signup/', views.SignUpView.as_view(), name="signup"),
     path('login/', views.LoginView.as_view(), name="login"),
     path('logout/', views.LogoutView.as_view(), name="logout"),
+    path('total/', calculate_total, name="total")
 ]
