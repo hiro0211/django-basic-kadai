@@ -20,7 +20,20 @@
 
 {% block title %}成績一覧{% endblock %}
 {% block content %}
-<button class="btn btn-success" type="button" onclick="location.href='{% url 'new' %}'">新規登録</button>
+<button class="btn btn-success" style="margin-right: 5rem; margin-bottom: 1rem;" type="button" onclick="location.href='{% url 'new' %}'">新規登録</button>
+
+{# 前へ #}
+{% if page_obj.has_previous %}
+<button class="btn btn-success" type="button" onclick="location.href='?page={{ page_obj.previous_page_number }}'">前へ</button>
+<a href="?page={{ page_obj.previous_page_number }}">前へ</a>
+{% endif %}
+
+{# 次へ #}
+{% if page_obj.has_next %}
+<a href="?page={{ page_obj.next_page_number }}">次へ</a>
+<a href="?page={{ page_obj.paginator.num_pages }}">最後 &raquo;</a>
+{% endif %}
+
     <table class="table table-striped table-hover table-bordered">
       <thead>
         <tr>

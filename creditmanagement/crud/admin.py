@@ -7,7 +7,7 @@ class SubjectAdmin(admin.ModelAdmin):
   list_filter = ('category', )
 
 class CategoryAdmin(admin.ModelAdmin):
-  list_display = ('id', 'name')
+  list_display = ('id', 'name', 'requiredment_credit')
   search_fields = ('name',)
 
 admin.site.register(Subject, SubjectAdmin)

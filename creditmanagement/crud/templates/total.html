@@ -4,11 +4,15 @@
 {% block content %}
 
 <h1>合計取得単位: {{ total_credit }} 単位</h1>
-<h2>卒業まであと合計 {{ rest_credit }} 単位</h2>
+<h3>卒業まであと合計 {{ rest_credit }} 単位</h3>
+<h3>共通教養科目はあと {{ rest_kyoutu }}単位</h3>
+<h3>第一外国語科目はあと {{ rest_first }}単位</h3>
+<br>
+<h2>・専門科目はあと{{ rest_specialize }}単位</h2>
+<h3>情報専門科目は、あと{{ rest_information }}単位</h3>
+<h3>学部共通科目は、あと{{ rest_gakubu }}単位</h3>
+<h3>学科共通科目は、あと{{ rest_department }}単位</h3>
 
-<ul>
-  {% for category, credits in category_credits.items %}
-      <li>{{ category }}: {{ credits }} 単位</li>
-  {% endfor %}
-</ul>
+
+
 {% endblock %}

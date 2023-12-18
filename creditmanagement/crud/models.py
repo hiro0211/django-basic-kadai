@@ -3,6 +3,7 @@ from django.urls import reverse
 
 class Category(models.Model):
   name = models.CharField(max_length=200)
+  requiredment_credit = models.PositiveIntegerField(default=0)
   
   def __str__(self):
     return self.name
@@ -18,6 +19,12 @@ class Subject(models.Model):
   
   def get_absolute_url(self):
     return reverse('list')
+  
+class ParentCategory(models.Model):
+  name = models.CharField(max_length=200)
+  parent = models.ForeignKey(Category, on_delete=models.DO_NOTHING)
+  required_credit = models.FloatField(null=True, blank=False)
+  
 """
 class Student(models.Model):
   name = models.CharField(max_length=100)
