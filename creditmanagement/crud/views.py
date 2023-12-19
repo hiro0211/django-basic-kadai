@@ -85,6 +85,9 @@ def calculate_total(request):
     first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
     rest_fisrt = 14 - first_language
 
+    filtered_second = Subject.objects.filter(category_id = 6)
+    second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
+
     filtered_gakubu = Subject.objects.filter(category_id = 2)
     gakubu_subject = filtered_gakubu.aggregate(Sum('credit'))['credit__sum']
     rest_gakubu = 14 - gakubu_subject
@@ -95,23 +98,25 @@ def calculate_total(request):
 
     filtered_information = Subject.objects.filter(category_id = 1)
     information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-    if information_subject < 0:
-        information_subject = 0
-    else:
-        information_subject
     rest_infomation = 8 - information_subject
 
     filterd_field = Subject.objects.filter(category_id = 7)
     field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
 
-    specialize_subject = gakubu_subject + department_subject + field_subject + information_subject
+    specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0)
     rest_specialize = 92 - specialize_subject
+
+    foreign_language = first_language + second_language
+    rest_foreign = 20 - foreign_language
 
     # kyoutu = Subject.objects.filter(category_id = 4)
     rest_credit = 128 - total_credit 
     return render(request, 'total.html', {'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 
-                  'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 'rest_specialize': rest_specialize})
+                  'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 'rest_specialize': rest_specialize,
+                  'rest_foreign': rest_foreign})
 
+
+"""
 def graduation_requirements(request):
     #student = Student.objects.get()
     
@@ -135,3 +140,4 @@ def graduation_requirements(request):
             remaining_credits[category] = remaining_credit
     
     return render(request, 'total.html', {'remaining_credits': remaining_credits})
+"""

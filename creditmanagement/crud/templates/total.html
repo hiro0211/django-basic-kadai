@@ -1,18 +1,22 @@
 {% extends "base.html" %}
 
 {% block title %}単位取得状況{% endblock %}
+
 {% block content %}
-
-<h1>合計取得単位: {{ total_credit }} 単位</h1>
-<h3>卒業まであと合計 {{ rest_credit }} 単位</h3>
-<h3>共通教養科目はあと {{ rest_kyoutu }}単位</h3>
-<h3>第一外国語科目はあと {{ rest_first }}単位</h3>
-<br>
-<h2>・専門科目はあと{{ rest_specialize }}単位</h2>
-<h3>情報専門科目は、あと{{ rest_information }}単位</h3>
-<h3>学部共通科目は、あと{{ rest_gakubu }}単位</h3>
-<h3>学科共通科目は、あと{{ rest_department }}単位</h3>
-
-
-
+<div class="text-left">
+  <h2 class="text-left">合計取得単位: {{ total_credit }} 単位</h2>
+  <h4 class="text-left">卒業まであと合計 {{ rest_credit }} 単位</h4>
+    <ul>
+      <li>共通教養科目はあと {% if rest_kyoutu > 0 %}{{ rest_kyoutu }}{% else %}0{% endif %}単位</li>
+      <li>外国語科目は、あと {% if rest_foreign > 0 %}{{ rest_foreign }}{% else %}0{% endif %}単位</li>
+      <li>第一外国語科目はあと {% if rest_first > 0 %}{{ rest_first }}{% else %}0{% endif %} 単位</li>
+    </ul>
+    <br>
+    <h3>専門科目はあと{{ rest_specialize }}単位</h3>
+      <ul>
+        <li>情報専門科目は、あと {% if rest_information > 0 %}{{ rest_information }}{% else %}0{% endif %}単位</li>
+        <li>学部共通科目は、あと {% if rest_gakubu > 0 %}{{ rest_gakubu }}{% else %}0{% endif %} 単位</li>
+        <li>学科共通科目は、あと {% if rest_department > 0 %}{{ rest_department }}{% else %}0{% endif %} 単位</li>
+      </ul>
+</div>
 {% endblock %}
