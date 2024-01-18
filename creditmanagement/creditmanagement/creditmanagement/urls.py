@@ -15,9 +15,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from crud import views
 from crud.views import calculate_total, CategorySubjectListView
+
+app_name = 'crud'
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -31,5 +33,12 @@ urlpatterns = [
     path('signup/', views.SignUpView.as_view(), name="signup"),
     path('login/', views.LoginView.as_view(), name="login"),
     path('logout/', views.LogoutView.as_view(), name="logout"),
-    path('total/', calculate_total, name="total")
+    path('total/', calculate_total, name="total"),
+    path('unipa_register/', views.LoadDataFromSite.as_view(), name="unipa_register"),
+    path('password_change/', views.PasswordChange.as_view(), name="password_change"),
+    path('password_change/done/', views.PasswordChangeDone.as_view(), name="password_change_done"),
+    path('password_reset/', views.PasswordReset.as_view(), name="password_reset"),
+    path('password_reset/done/', views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', views.PasswordResetConfirm.as_view(), name='password_reset_confirm'),
+    path('reset/done/', views.PasswordResetComplete.as_view(), name='password_reset_complete'),
 ]

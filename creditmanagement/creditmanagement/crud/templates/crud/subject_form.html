@@ -9,7 +9,7 @@
   {% csrf_token %}
   {{ form|bootstrap }}
   <br>
-  <a href="{% url 'list' %}">戻る</a>
+  <button class="btn btn-outline-primary" style="margin-right: auto;" onclick="location.href='{% url 'list' %}'">戻る</button>
   <input type="submit" class="btn btn-primary" value="登録">
 </form>
 {% endblock %}

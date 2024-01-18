@@ -3,12 +3,20 @@
 
 {% block title %}ログインページ{% endblock %}
 {% block content %}
-<h1>ログイン</h1>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <h1 class="text-center">ログイン</h1>
 
-<form method="post">
-  {% csrf_token %}
-  {{ form|bootstrap }}
-  <br>
-  <input type="submit" class="btn btn-primary" value="ログイン">
-</form>
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-primary btn-block mt-3">ログイン</button>
+        <a href='{% url 'password_reset' %}' class="d-block mt-3">パスワードを忘れた場合</a>
+        <a href='{% url 'signup' %}' class="d-block mt-3">新規登録</a>
+      </form>
+    </div>
+  </div>
+</div>
+
 {% endblock %}

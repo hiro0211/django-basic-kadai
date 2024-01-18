@@ -2,13 +2,23 @@
 
 {% block title %}削除{% endblock %}
 {% block content %}
-<h1>選択した科目を削除する</h1>
-
-<form method="post">
-  {% csrf_token %}
-  ・本当に選択した科目を削除してもよろしいですか？<br>
-  <h2>{{ object }}</h2><br>
-  <button class="btn btn-primary" onclick="location.href='{% url 'list' %}'">戻る</button>
-  <input type="submit" class="btn btn-danger" value="削除">
-</form>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6">
+      <div class="card">
+        <div class="card-body">
+          <form method="post">
+            {% csrf_token %}
+            <h5 class="card-subtitle mb-4">{{ object }}を削除します。</h5>
+            <p class="card-text">本当に<span class="fw-bolder">{{ object }}</span>を削除してもよろしいですか？<br>削除された科目は元に戻せません。</p>
+            <div>
+              <button class="btn btn-outline-primary mr-2" onclick="location.href='{% url 'list' %}'">戻る</button>
+              <input type="submit" class="btn btn-danger" value="削除">
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 {% endblock %}
