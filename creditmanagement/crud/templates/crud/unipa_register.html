@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load bootstrap %}
+
+{% block title %}
+unipaへ自動ログインする
+{% endblock %}
+
+{% block content %}
+<div>
+  <h2>unipaにログインする</h2>
+  <p>unipaにログインすれば自動で取得した単位を登録できます。</p>
+  <br>
+  <form method="POST">
+    {% csrf_token %}
+    {{ form|bootstrap }}
+    {{ form.non_field_errors }}
+    <br>
+    <div class="mt-3">
+      <button type="submit" class="btn btn-primary">ログインする</button>
+      <a href="{% url 'list' %}" class="btn btn-secondary">戻る</a>
+      <button class="btn btn-outline-success" type="button" onclick="location.href='{% url 'new' %}'">手動で科目登録</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -2,5 +2,10 @@
  
 {% block title %}トップ画面{% endblock %}
 {% block content %}
-<h1>履修登録.com</h1>
+<h1>単位管理.com</h1>
+<p>履修要項を確認せずに卒業までに必要な単位数を一目でチェックできます。</p>
+
+<button class="btn btn-success" type="button" onclick="location.href='{% url 'signup' %}'">新規登録</button>
+
+<button class="btn btn-outline-primary" type="button" onclick="location.href='{% url 'login' %}'">ログインはこちら</button>
 {% endblock %}

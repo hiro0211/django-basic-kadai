@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,39 +11,43 @@
 </head>
 <body>
   <main>
-  <nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="margin-bottom: 1rem;">
-    <div class="container-fluid">
-      <a class="navbar-brand" href="{% url 'list' %}">単位管理.com</a>
-      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-        <span class="navbar-toggler-icon"></span>
-      </button>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary" style="margin-bottom: 1rem;">
+      <div class="container-fluid">
+          <a class="navbar-brand" href="{% url 'list' %}">単位管理.com</a>
+          <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+              <ul class="navbar-nav ms-auto flex-nowrap" style="margin-top: 1rem;">
+                  {% if request.user.is_authenticated %}
+                  <li class="nav-item px-2">
+                    <p class="navbar-text">ようこそ！{{ user.get_username }}さん</p>
+                  </li>
+                  <li class="nav-item px-2">
+                    <a class="nav-link" href="{% url 'list' %}">ホーム</a>
+                  </li>
+                  <li class="nav-item px-2">
+                    <a class="nav-link" href="{% url 'total' %}">卒業単位</a>
+                  </li>
+                  <li class="nav-item px-2">
+                    <a class="nav-link" href="{% url 'profile' %}">プロフィール</a>
+                  </li>
+                  <li class="nav-item px-2">
+                      <a class="nav-link" href="{% url 'signup' %}">ユーザ登録</a>
+                  </li>
+                  <li class="nav-item px-2">
+                      <a class="nav-link" href="{% url 'logout' %}">ログアウト</a>
+                  </li>
+                  {% else %}
+                  <li class="nav-item px-2">
+                      <a class="nav-link" href="{% url 'login' %}">ログイン</a>
+                  </li>
+                  {% endif %}
+              </ul>
+          </div>
       </div>
-      <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
-        <ul class="navbar-nav ms-auto">
-          {% if request.user.is_authenticated %}
-          <li class="nav-item px-2">
-            <span class="navbar-text">
-            ようこそ！{{ user.get_username }}さん
-            </span>
-          </li>
-          <li class="nav-item px-2">
-            <a class="nav-link" href="{% url 'total' %}">プロフィール</a>
-          </li>
-          <li class="nav-item px-2">
-            <a class="nav-link" href="{% url 'signup' %}">ユーザ登録</a>
-          </li>
-          <li class="nav-item px-2">
-            <a class="nav-link" href="{% url 'logout' %}">ログアウト</a>
-          </li>
-          {% else %}
-          <li class="nav-item px-2">
-            <a class="nav-link" href="{% url 'login' %}">ログイン</a>
-          </li>
-          {% endif %}
-        </ul>
-      </div>
-    </div>
   </nav>
+  
     {% block header %}
     {% endblock header %}
     <div class="container">
@@ -52,5 +58,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
   </main>
+  <footer class="py-5 bg-primary mt-3">
+    <div class="container">
+      <p class="m-0 text-center text-white">Copyright &copy; 単位管理.com 2024</p>
+    </div>
+  </footer>
+  <script src="{% static 'js/main.js' %}"></script>
 </body>
 </html>

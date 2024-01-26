@@ -1,27 +1,25 @@
 {% extends "base.html" %}
+{% load bootstrap %}
+{% load static %}
+
 {% block title %}ユーザ登録{% endblock %}
 
 {% block content %}
-<div class="row">
-  <div class="col-sm-6">
-    <br>
-    <h1>ユーザ登録</h1>
-    <form method="POST" enctype="multipart/form-data">
-      {% csrf_token %}
-      {{ form.non_field_errors }}
-      {% for field in form %}
-      <div class="m-auto">
-        {{ field.label }}
-      </div>
-      <div class="m-auto">
-        {{ field }}
-      </div>
-      <div class="m-auto">
-        {{ field.errors }}
-      </div>
-      {% endfor %}
-      <button class="m-5" type="submit">登録</button>
-    </form>
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-6 offset-md-3">
+      <br>
+      <h1>ユーザ登録</h1>
+      <form method="POST" class="mt-4" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        {{ form2|bootstrap }}
+        {{ form.non_field_errors }}
+
+        <button class="btn btn-primary btn-lg mt-3" type="submit">登録</button>
+      </form>
+    </div>
   </div>
 </div>
+
 {% endblock %}

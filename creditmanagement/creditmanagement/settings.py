@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crud',
     'bootstrapform',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
@@ -77,11 +78,12 @@ WSGI_APPLICATION = 'creditmanagement.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'credit',
+        'USER': 'arimu',
+        'PASSWORD': 'Yuudai07Arimura'
     }
 }
-
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators
@@ -124,4 +126,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+LOGIN_URL = "login"
+
 LOGIN_REDIRECT_URL = "list"
+
+LOGOUT_REDIRECT_URL = 'top'
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+DEFAULT_AUTO_EMAIL = 'arimurahiroaki40@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'arimurahiroaki40@gmail.com'
+EMAIL_HOST_PASSWORD = 'nfqg xapw vzpv lvos'

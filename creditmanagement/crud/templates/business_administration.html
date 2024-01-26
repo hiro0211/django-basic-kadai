@@ -1,0 +1,125 @@
+{% extends "base.html" %}
+
+{% block title %}単位取得状況{% endblock %}
+
+{% block content %}
+<p>・このページでは、卒業までに必要な単位数が一目で確認できます。</p>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item h3">卒業までの単位数</li>
+                        <li class="list-group-item h4">卒業まであと合計 <span class="fw-bolder">{% if rest_credit > 0 %}{{ rest_credit }}{% else %}0{% endif %}</span>単位</li>
+                        <li class="list-group-item h4">進級まであと合計 <span class="fw-bolder">{% if rest_promotion > 0 %}{{ rest_promotion }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">進級まであと専門科目 <span class="fw-bolder">{% if promotion_specialize > 0 %}{{ promotion_specialize }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">共通教養科目あと <span class="fw-bolder">{% if rest_kyoutu > 0 %}{{ rest_kyoutu }}{% else %}0{% endif %}</span>単位</li>
+                        <li class="list-group-item">外国語科目あと <span class="fw-bolder">{% if rest_foreign > 0 %}{{ rest_foreign }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">第一外国語科目あと <span class="fw-bolder">{% if rest_first > 0 %}{{ rest_first }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">第二外国語科目あと <span class="fw-bolder">{% if rest_second > 0 %}{{ rest_second }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item h3">卒業まで専門科目あと <span class="fw-bolder">{% if rest_specialize > 0 %}{{ rest_specialize }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">基礎科目あと <span class="fw-bolder">{% if rest_basic > 0 %}{{ rest_basic }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">情報科目あと <span class="fw-bolder">{% if rest_information > 0 %}{{ rest_information }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">基幹科目あと <span class="fw-bolder">{% if rest_core > 0 %}{{ rest_core }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">総合科目あと <span class="fw-bolder">{% if rest_comprehensive > 0 %}{{ rest_comprehensive }}{% else %}0{% endif %}</span> 単位</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>    
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body">
+                    <h2 class="card-title">合計取得単位:{% if total_credit > 0 %}{{ total_credit }}{% else %}0{% endif %}単位</h2>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">共通教養科目 {% if kyoutu > 0 %}{{ kyoutu }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item h5">外国語科目 {% if foreign_language > 0 %}{{ foreign_language }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">第一外国語科目 {% if first_language > 0 %}{{ first_language }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">第二外国語科目 {% if second_language > 0 %}{{ second_language }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item h5">専門科目 {% if specialize_subject > 0 %}{{ specialize_subject }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">基礎科目 {% if basic_subject > 0 %}{{ basic_subject }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">情報科目 {% if information_subject > 0 %}{{ information_subject }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">基幹科目 {% if core_subject > 0 %}{{ core_subject }}{% else %}0{% endif %} 単位
+                        <li class="list-group-item">関連科目 {% if relate_subject > 0 %}{{ relate_subject }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">総合科目 {% if comprehensive_subject > 0 %}{{ comprehensive_subject }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">自由科目 {% if free_subject > 0 %}{{ free_subject }}{% else %}0{% endif %} 単位</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="accordion" id="accordionExample">
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+        外国語科目 {% if foreign_language > 0 %}{{ foreign_language }}{% else %}0{% endif %} 単位
+      </button>
+    </h2>
+    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        第一外国語科目 {% if first_language > 0 %}{{ first_language }}{% else %}0{% endif %} 単位
+      </div>
+    </div>
+    <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            第二外国語科目 {% if second_language > 0 %}{{ second_language }}{% else %}0{% endif %} 単位
+        </div>
+      </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+        専門科目 {% if specialize_subject > 0 %}{{ specialize_subject }}{% else %}0{% endif %} 単位
+      </button>
+    </h2>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        基礎科目 {% if basic_subject > 0 %}{{ basic_subject }}{% else %}0{% endif %} 単位
+      </div>
+    </div>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            情報科目 {% if information_subject > 0 %}{{ information_subject }}{% else %}0{% endif %} 単位
+        </div>
+    </div>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            基幹科目 {% if core_subject > 0 %}{{ core_subject }}{% else %}0{% endif %} 単位
+        </div>
+    </div>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            関連科目 {% if relate_subject > 0 %}{{ relate_subject }}{% else %}0{% endif %} 単位
+        </div>
+    </div>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            総合科目 {% if comprehensive_subject > 0 %}{{ comprehensive_subject }}{% else %}0{% endif %} 単位
+        </div>
+    </div>
+    <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+        <div class="accordion-body">
+            自由科目 {% if free_subject > 0 %}{{ free_subject }}{% else %}0{% endif %} 単位
+        </div>
+    </div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header">
+      <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+        Accordion Item #3
+      </button>
+    </h2>
+    <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+      <div class="accordion-body">
+        <strong>This is the third item's accordion body.</strong> It is hidden by default, until the collapse plugin adds the appropriate classes that we use to style each element. These classes control the overall appearance, as well as the showing and hiding via CSS transitions. You can modify any of this with custom CSS or overriding our default variables. It's also worth noting that just about any HTML can go within the <code>.accordion-body</code>, though the transition does limit overflow.
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
