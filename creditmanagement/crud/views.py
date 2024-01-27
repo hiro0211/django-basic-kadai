@@ -459,6 +459,7 @@ def calculate_total(request):
 
     if all([user_faculty == "経済学部", user_grade == '1年']):
         #必修科目を入れる。
+        
         required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
         filtered_required = Subject.objects.filter(is_required=True, user=request.user)
         filtered_required = [subject.name for subject in filtered_required]
@@ -482,8 +483,8 @@ def calculate_total(request):
         department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
         rest_department = 28 - (department_subject or 0)
 
-        filtered_remedical = Subject.objects.filter(category_id = 32, user=request.user)
-        remedial_subject = filtered_remedical.aggregate(Sum('credit'))['credit__sum']
+        filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
+        remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
 
         filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
         information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
@@ -504,18 +505,17 @@ def calculate_total(request):
         total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
         #total_credit = all_credit - (free_subject or 0)
 
-        #進級要件の処理
-        promotion_specialize = 4 - (specialize_subject or 0)
-        rest_promotion = 20 - (total_credit or 0)
+        #3年生への進級要件
+        rest_promotion = 56 - (total_credit or 0)
 
         # kyoutu = Subject.objects.filter(category_id = 4)
         rest_credit = 128 - (total_credit or 0 )
         return render(request, 'economics_total.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'gakubu_subject': gakubu_subject, 
                                               'department_subject': department_subject, 'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': 'rest_credit', 
+                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 
                                               'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject, 'promotion_spesiailze': promotion_specialize, 
-                                              'rest_promotion': rest_promotion, 'filtered_required': filtered_required, 'required_list': required_list})
+                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 
+                                              'filtered_required': filtered_required, 'required_list': required_list})
 
     elif all([user_faculty == "経済学部", user_grade == '2年']):
         #必修科目を入れる。

@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from crud import views
-from crud.views import calculate_total, CategorySubjectListView
+from crud.views import calculate_total, CategorySubjectListView, get_department_choices
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -42,4 +42,5 @@ urlpatterns = [
     path('reset/done/', views.MyPasswordResetComplete.as_view(), name='password_reset_complete'),
     path('profile/', views.StudentProfileView.as_view(), name='profile'),
     path('profile/change/', views.StudentChangeView.as_view(), name='profile_change'),
+    path('signup/', get_department_choices, name='signup')
 ]
