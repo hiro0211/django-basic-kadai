@@ -5,6 +5,46 @@
 {% block title %}ユーザ登録{% endblock %}
 
 {% block content %}
+
+<script>
+
+  document.addEventListener("DOMContentLoaded", function () {
+    const facultyField = document.getElementById("id_faculty");
+    const departmentField = document.getElementById("id_department");
+  
+    const departmentChoices = {
+      経済学部: ["経済学科", "国際経済学科", "総合経済政策学科"],
+      経営学部: ["経営学科", "商学科", "会計学科", "キャリアマネジメント学科"],
+      法学部: ["法律学科"],
+      // 他の学部
+    };
+  
+    facultyField.addEventListener("change", function () {
+      const selectedFaculty = facultyField.value;
+      const choices = departmentChoices[selectedFaculty] || [];
+      updateDepartmentChoices(choices);
+    });
+  
+    function updateDepartmentChoices(choices) {
+      // 一度選択肢を空にして
+      while (departmentField.options.length > 0) {
+        departmentField.remove(0);
+      }
+  
+      // 選択肢を新しく追加
+      choices.forEach(function (choice) {
+        const option = new Option(choice, choice);
+        departmentField.add(option);
+      });
+    }
+  
+    // 最初の絞り込み
+    const initialFaculty = facultyField.value;
+    const initialChoices = departmentChoices[initialFaculty] || [];
+    updateDepartmentChoices(initialChoices);
+  });
+  </script>
+
 <div class="container mt-5">
   <div class="row">
     <div class="col-md-6 offset-md-3">

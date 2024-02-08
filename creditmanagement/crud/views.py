@@ -80,6 +80,41 @@ def scrape_and_save_data(chrome_driver, semester_index, user, first_index=9):
           is_required = False
           if any(["基礎ゼミ" in kamoku, "演習Ⅰ" in kamoku, "演習Ⅱ" in kamoku]):
             is_required = True
+          if "外国語演習Ⅰ" in kamoku:
+            is_required = False  
+            #print(category, kamoku)
+          category_model , _ = Category.objects.get_or_create(name=category_)
+          Subject.objects.create(category=category_model, name=kamoku, credit=credit, score=score, is_required=is_required, user=user)    
+        
+        else:
+          category = kamoku
+
+def scrape_faculty_of_low(chrome_driver, semester_index, user, first_index=9):
+    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[first_index + 2 * semester_index]  
+
+    Subject.objects.filter(user=user).delete
+    category = '' 
+    for tr in semester_elements.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
+      try:
+        kamoku = tr.find_element(By.CSS_SELECTOR, 'td.kamokuList').text    
+        credit = tr.find_element(By.CSS_SELECTOR, 'td.tdTaniList').text
+        score = tr.find_element(By.CSS_SELECTOR, 'td.tdSotenList').text
+      except Exception:
+        pass
+      else:
+        if credit:
+          category_ = category
+          if category_ == '外国語科目':
+            if '英語' in kamoku or 'ライティング' in kamoku or 'English' in kamoku:
+              category_ = '英語科目'
+            else:
+              category_ = '第二外国語科目'
+          is_required = False
+          if any(["基礎ゼミ" in kamoku, "情報処理実習" in kamoku, "英語1A" in kamoku, "英語1B" in kamoku,
+                  "英語2A" in kamoku, "英語2B" in kamoku, "英語3A" in kamoku, "英語3B" in kamoku, "Communicative English 1A" in kamoku,
+                  "Communicative English 1B" in kamoku, "Communicative English 2A" in kamoku, "Communicative English 2B" in kamoku,
+                  "ベーシック・ライティングA" in kamoku, "ベーシック・ライティングB" in kamoku, "専門演習Ⅰ" in kamoku, "専門演習Ⅱ" in kamoku]):
+            is_required = True
 
             #print(category, kamoku)
           category_model , _ = Category.objects.get_or_create(name=category_)
@@ -96,6 +131,23 @@ class LoadDataFromSite(generic.FormView):
         user_id = form.cleaned_data['user_id']
         password_text = form.cleaned_data['password']
         # test.pyの内容をこの下に書く
+        """
+        chrome_options = webdriver.ChromeOptions()
+        chrome_options.add_argument('--headless')  # ヘッドレスモードを有効にする
+
+        # ChromeDriverにChromeOptionsを渡してwebdriverを初期化
+        chrome_driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
+
+        chrome_options.binary_location = "/usr/bin/google-chrome"
+
+        # 直接インストールされたChromeDriverのパスを指定します
+        service = ChromeService(executable_path="/usr/local/bin/chromedriver")
+
+        # WebDriverの初期化
+        driver = webdriver.Chrome(service=service, options=chrome_options)
+
+        """
+
         chrome_driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
         #chrome_options = webdriver.ChromeOptions()
@@ -183,7 +235,7 @@ class LoadDataFromSite(generic.FormView):
         #経営学部の処理を記述
         elif all([user_grade == '2年', user_faculty == "経営学部"]):
             #成績情報を取得
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[39]
+            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[7]
 
             Subject.objects.filter(user=self.request.user).delete
             category = '' 
@@ -213,7 +265,7 @@ class LoadDataFromSite(generic.FormView):
             return redirect("list")
 
         elif all([user_grade == '3年',  user_faculty == "経営学部"]):
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[39]
+            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[7]
 
             Subject.objects.filter(user=self.request.user).delete
             category = '' 
@@ -244,7 +296,7 @@ class LoadDataFromSite(generic.FormView):
         elif all([user_grade == '4年', user_faculty == "経営学部"]):
 
             #成績情報を取得
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[39]
+            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[7]
 
             Subject.objects.filter(user=self.request.user).delete
             category = '' 
@@ -273,6 +325,49 @@ class LoadDataFromSite(generic.FormView):
 
             return redirect("list")
         
+        #法律学部の処理を記述
+        elif all([user_grade == '1年', user_faculty == "法学部", user_semester == "後期"]):
+            for i in range(1):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+        
+        elif all([user_grade == '2年', user_faculty == "法学部", user_semester == "前期"]):
+            for i in range(2):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+        
+        elif all([user_grade == '2年', user_faculty == "法学部", user_semester == "後期"]):
+            for i in range(3):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+        
+        elif all([user_grade == '3年', user_faculty == "法学部", user_semester == "前期"]):
+            for i in range(4):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+        
+        elif all([user_grade == '3年', user_faculty == "法学部", user_semester == "後期"]):
+            for i in range(5):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+        
+        elif all([user_grade == '4年', user_faculty == "法学部", user_semester == "前期"]):
+            for i in range(6):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+        
+        elif all([user_grade == '4年', user_faculty == "法学部", user_semester == "後期"]):
+            for i in range(7):
+              scrape_faculty_of_low(chrome_driver, i, self.request.user)
+    
+            return redirect("list")
+
 
 """
     def form_valid(self, form):
@@ -452,509 +547,261 @@ class StudentChangeView(LoginRequiredMixin, FormView):
         messages.error(self.request, 'プロフィールの更新に失敗しました。')
         return super().form_invalid(form)
 
-def calculate_total(request):
-    user_faculty = request.user.student.faculty
-    user_grade = request.user.student.grade 
-    required_list = []
+def calculate_economics(request, promotion_index, user):
+    required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
+    filtered_required = Subject.objects.filter(is_required=True, user=request.user)
+    filtered_required = [subject.name for subject in filtered_required]
 
-    if all([user_faculty == "経済学部", user_grade == '1年']):
-        #必修科目を入れる。
+    filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
+    kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
+    rest_kyoutu = 16 - (kyoutu or 0)
+
+    filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
+    first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
+    rest_fisrt = 14 - (first_language or 0)
+
+    filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
+    second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
+
+    filtered_gakubu = Subject.objects.filter(category_id = 4, user=request.user)
+    gakubu_subject = filtered_gakubu.aggregate(Sum('credit'))['credit__sum']
+    rest_gakubu = 14 - (gakubu_subject or 0)
+
+    filtered_department = Subject.objects.filter(category_id = 5, user=request.user)
+    department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
+    rest_department = 28 - (department_subject or 0)
+
+    filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
+    remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
+
+    filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
+    information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
+    rest_infomation = 8 - (information_subject or 0)
+
+    filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
+    field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
+
+    filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
+    free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
+
+    specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0) + (remedial_subject or 0)
+    rest_specialize = 92 - (specialize_subject or 0)
+
+    foreign_language = (first_language or 0) + (second_language or 0)
+    rest_foreign = 20 - (foreign_language or 0)
+    
+    total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
+    #total_credit = all_credit - (free_subject or 0)
+
+    #3年生への進級要件
+    rest_promotion = promotion_index - (total_credit or 0)
+
+    rest_credit = 128 - (total_credit or 0 )
+
+    return {
+        'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 
+        'gakubu_subject': gakubu_subject, 'department_subject': department_subject, 
+        'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
+        'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit,
+        'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu,
+        'rest_department': rest_department, 'rest_information': rest_infomation, 'rest_specialize': rest_specialize,
+        'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 'filtered_required': filtered_required,
+        'required_list': required_list
+    }
+
+def calculate_business(request, promotion_index, user):
+    filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
+    kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
+    rest_kyoutu = 20 - (kyoutu or 0)
+
+    filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
+    first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
+    rest_fisrt = 14 - (first_language or 0)
+
+    filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
+    second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
+    rest_second = 2 - (second_language or 0)
+
+    #基礎科目の処理
+    filtered_basic = Subject.objects.filter(category_id = 7, user=request.user)
+    basic_subject = filtered_basic.aggregate(Sum('credit'))['credit__sum']
+    rest_basic = 14 - (basic_subject or 0)
+
+    #基幹科目の処理
+    filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
+    core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
+    rest_core = 32 - (core_subject or 0)
+
+    #関連科目の処理
+    filtered_relate = Subject.objects.filter(category_id = 11, user=request.user)
+    relate_subject = filtered_relate.aggregate(Sum('credit'))['credit__sum']
+
+    #情報科目の処理
+    filtered_information = Subject.objects.filter(category_id = 8,  user=request.user)
+    information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
+    rest_infomation = 10 - (information_subject or 0)
+
+    #総合科目の処理
+    filterd_comprehensive = Subject.objects.filter(category_id = 12, user=request.user)
+    comprehensive_subject = filterd_comprehensive.aggregate(Sum('credit'))['credit__sum']
+    rest_comprehensive = 8 - (comprehensive_subject or 0)
+    
+    #自由科目の処理
+    filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
+    free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
+
+    #他コース科目の処理
+    filtered_other_course = Subject.objects.filter(category_id = 13, user=request.user) 
+    other_course = filtered_other_course.aggregate(Sum('credit'))['credit__sum']
+
+    #他学科科目の処理
+    filtered_other_subject = Subject.objects.filter(category_id = 14, user=request.user)
+    other_subject = filtered_other_subject.aggregate(Sum('credit'))['credit__sum']
+
+    #専門科目の処理
+    specialize_subject = (basic_subject or 0) + (core_subject or 0)+ (comprehensive_subject or 0) + (information_subject or 0) + (relate_subject or 0) + (other_course or 0) + (other_subject or 0)
+    rest_specialize = 86 - (specialize_subject or 0)
+
+    #外国語科目の処理
+    foreign_language = (first_language or 0) + (second_language or 0)
+    rest_foreign = 18 - (foreign_language or 0)
+    
+    total_credit = (kyoutu or 0) + (specialize_subject or 0) + (foreign_language or 0)
+    #total_credit = all_credit - (free_subject or 0)
+
+    rest_promotion = promotion_index - (total_credit or 0)
+
+    rest_credit = 124 - (total_credit or 0 )
+
+    return { 'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language,
+              'basic_subject': basic_subject, 'core_subject': core_subject, 'comprehensive_subject': comprehensive_subject,
+              'information_subject':information_subject, 'relate_subject': relate_subject, 'other_course': other_course,
+              'other_subject': other_subject, 'specialize_subject': specialize_subject, 'foreign_language': foreign_language,
+              'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt,
+              'rest_second': rest_second, 'rest_basic': rest_basic, 'rest_core': rest_core, 'rest_comprehensive': rest_comprehensive,
+              'rest_infomation': rest_infomation, 'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject,
+              'rest_promotion': rest_promotion
+    }
+
+def calculate_law(request, promotion_index, user):
+    #共通教養科目、課題設定・問題解決科目群
+    filtered_problem =  Subject.objects.filter(category_id = 16, user=request.user).aggregate(Sum('credit'))['credit__sum']
+    problem_subject = filtered_problem.aggregate(Sum('credit'))['credit__sum']
+    rest_problem = 4 - (problem_subject or 0)
+
+    #地域性・国際性科目群
+    filtered_international =  Subject.objects.filter(category_id = 17, user=request.user).aggregate(Sum('credit'))['credit__sum']
+    international_subject = filtered_international.aggregate(Sum('credit'))['credit__sum']
+    rest_international = 2 - (international_subject or 0)
+
+    #人間性・社会性科目群
+    filtered_humanity =  Subject.objects.filter(category_id = 18, user=request.user).aggregate(Sum('credit'))['credit__sum']
+    humanity_subject = filtered_humanity.aggregate(Sum('credit'))['credit__sum']
+    rest_humanity = 4 - (humanity_subject or 0)
+
+    #共通教養科目
+    kyoutu = problem_subject + international_subject + humanity_subject
+    rest_kyoutu = 16 - (kyoutu or 0)
+
+    #英語科目の処理
+    filtered_english = Subject.objects.filter(category_id = 21, user=request.user)
+    english_subject = filtered_english.aggregate(Sum('credit'))['credit__sum']
+    rest_english = 14 - (english_subject or 0)
+
+    #第二外国語科目
+    filtered_second = Subject.objects.filter(category_id = 3, user=request.user) 
+    second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
+    rest_second = 4 - (second_language or 0)
+
+    #基幹科目
+    filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
+    core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
+    rest_core = 32 - (core_subject or 0)
+
+    #その他
+    filtered_other = Subject.objects.filter(category_id = 18, user=request.user)
+    other_subject = filtered_other.aggregate(Sum('credit'))['credit__sum']
+    rest_other = 30 - (other_subject or 0)
+
+    #専門科目
+    specialize_subject = (core_subject or 0) + (other_subject or 0)
+    rest_specialize = 94 - (specialize_subject or 0)
+
+    total_credit = (kyoutu or 0) + (english_subject or 0) + (second_language or 0) + (specialize_subject or 0)
+
+    rest_promotion = promotion_index - (total_credit or 0)
+
+    return { 'kyoutu':kyoutu, 'problem_subject': problem_subject, 'international_subject': international_subject,
+              'humanity_subject': humanity_subject, 'english_subject': english_subject, 'second_language': second_language,
+              'core_subject': core_subject, 'other_subject': other_subject, 'specialize_subject': specialize_subject,
+              'rest_kyoutu': rest_kyoutu, 'rest_problem': rest_problem, 'rest_international': rest_international,
+              'rest_humanity': rest_humanity, 'rest_english': rest_english, 'rest_second': rest_second, 'rest_core': rest_core,
+              'rest_other': rest_other, 'rest_specialize': rest_specialize, 'total_credit': total_credit
+    }
+
+class calculate_total(View):
+    def get(self, request, *args, **kwargs):
+        user_faculty = request.user.student.faculty
+        user_grade = request.user.student.grade 
+
+        if all([user_faculty == "経済学部", user_grade == '1年']):
+            economics_data = calculate_economics(request, 20, request.user)
+          
+            return render(request, 'economics_total.html', economics_data)
+
+        elif all([user_faculty == "経済学部", user_grade == '2年']):
+            economics_data = calculate_economics(request, 56, request.user)
+          
+            return render(request, 'economics_total.html', economics_data)
+
+        elif all([user_faculty == "経済学部", user_grade == '3年']):
+            economics_data = calculate_economics(request, 92, request.user)
+          
+            return render(request, 'economics_total.html', economics_data)
+
+        elif all([user_faculty == "経済学部", user_grade == '4年']):
+            economics_data = calculate_economics(request, 128, request.user)
+          
+            return render(request, 'economics_total.html', economics_data)
+
+        #経営学部の処理
+        elif all([user_faculty == "経営学部", user_grade == '1年']):
+            business_data = calculate_business(request, 20, request.user)
+
+            return render(request, 'business_administration.html', business_data)
+
+        elif all([user_faculty == "経営学部", user_grade == '2年']):
+            business_data = calculate_business(request, 52, request.user)
+
+            return render(request, 'business_administration.html', business_data)
+
+        elif all([user_faculty == "経営学部", user_grade == '3年']):
+            business_data = calculate_business(request, 84, request.user)
+
+            return render(request, 'business_administration.html', business_data)
         
-        required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
-        filtered_required = Subject.objects.filter(is_required=True, user=request.user)
-        filtered_required = [subject.name for subject in filtered_required]
+        elif all([user_faculty == "経営学部", user_grade == '4年']):
+            business_data = calculate_business(request, 124, request.user)
 
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 16 - (kyoutu or 0)
+            return render(request, 'business_administration.html', business_data)
 
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
+        #法学部の処理
+        elif all([user_faculty == "法学部", user_grade == '1年']):
+            law_data = calculate_law(request, 22, request.user)
 
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
+            return render(request, 'law_total.html', law_data)
 
-        filtered_gakubu = Subject.objects.filter(category_id = 4, user=request.user)
-        gakubu_subject = filtered_gakubu.aggregate(Sum('credit'))['credit__sum']
-        rest_gakubu = 14 - (gakubu_subject or 0)
+        elif all([user_faculty == "法学部", user_grade == '2年']):  
+            law_data = calculate_law(request, 56, request.user)
 
-        filtered_department = Subject.objects.filter(category_id = 5, user=request.user)
-        department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
-        rest_department = 28 - (department_subject or 0)
-
-        filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
-        remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 8 - (information_subject or 0)
-
-        filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
-        field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0) + (remedial_subject or 0)
-        rest_specialize = 92 - (specialize_subject or 0)
-
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 20 - (foreign_language or 0)
+            return render(request, 'law_total.html', law_data)
         
-        total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
-        #total_credit = all_credit - (free_subject or 0)
+        elif all([user_faculty == "法学部", user_grade == '3年']):
+            law_data = calculate_law(request, 92, request.user)
 
-        #3年生への進級要件
-        rest_promotion = 56 - (total_credit or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 128 - (total_credit or 0 )
-        return render(request, 'economics_total.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'gakubu_subject': gakubu_subject, 
-                                              'department_subject': department_subject, 'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 
-                                              'filtered_required': filtered_required, 'required_list': required_list})
-
-    elif all([user_faculty == "経済学部", user_grade == '2年']):
-        #必修科目を入れる。
-        required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
-        filtered_required = Subject.objects.filter(is_required=True, user=request.user)
-        filtered_required = [subject.name for subject in filtered_required]
-
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 16 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_gakubu = Subject.objects.filter(category_id = 4, user=request.user)
-        gakubu_subject = filtered_gakubu.aggregate(Sum('credit'))['credit__sum']
-        rest_gakubu = 14 - (gakubu_subject or 0)
-
-        filtered_department = Subject.objects.filter(category_id = 5, user=request.user)
-        department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
-        rest_department = 28 - (department_subject or 0)
-
-        filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
-        remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 8 - (information_subject or 0)
-
-        filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
-        field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0) + (remedial_subject or 0)
-        rest_specialize = 92 - (specialize_subject or 0)
-
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 20 - (foreign_language or 0)
+            return render(request, 'law_total.html', law_data)
         
-        total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
-        #total_credit = all_credit - (free_subject or 0)
+        elif all([user_faculty == "法学部", user_grade == '4年']):
+            law_data = calculate_law(request, 128, request.user)
 
-        #3年生への進級要件
-        rest_promotion = 56 - (total_credit or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 128 - (total_credit or 0 )
-        return render(request, 'economics_total.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'gakubu_subject': gakubu_subject, 
-                                              'department_subject': department_subject, 'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 
-                                              'filtered_required': filtered_required, 'required_list': required_list})
-
-    elif all([user_faculty == "経済学部", user_grade == '3年']):
-        required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
-        filtered_required = Subject.objects.filter(is_required=True, user=request.user)
-        filtered_required = [subject.name for subject in filtered_required]
-
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 16 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_gakubu = Subject.objects.filter(category_id = 4, user=request.user)
-        gakubu_subject = filtered_gakubu.aggregate(Sum('credit'))['credit__sum']
-        rest_gakubu = 14 - (gakubu_subject or 0)
-
-        filtered_department = Subject.objects.filter(category_id = 5, user=request.user)
-        department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
-        rest_department = 28 - (department_subject or 0)
-
-        filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
-        remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 8 - (information_subject or 0)
-
-        filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
-        field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0) + (remedial_subject or 0)
-        rest_specialize = 92 - (specialize_subject or 0)
-
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 20 - (foreign_language or 0)
-        
-        total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
-        #total_credit = all_credit - (free_subject or 0)
-
-        #4年生への進級要件
-        rest_promotion = 92 - (total_credit or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 128 - (total_credit or 0 )
-        return render(request, 'economics_total.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'gakubu_subject': gakubu_subject, 
-                                              'department_subject': department_subject, 'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 'filtered_required': filtered_required,
-                                              'required_list': required_list})
-
-    elif all([user_faculty == "経済学部", user_grade == '4年']):
-        #必修科目を入れる。
-        required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
-        filtered_required = Subject.objects.filter(is_required=True, user=request.user)
-        filtered_required = [subject.name for subject in filtered_required]
-
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 16 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_gakubu = Subject.objects.filter(category_id = 4, user=request.user)
-        gakubu_subject = filtered_gakubu.aggregate(Sum('credit'))['credit__sum']
-        rest_gakubu = 14 - (gakubu_subject or 0)
-
-        filtered_department = Subject.objects.filter(category_id = 5, user=request.user)
-        department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
-        rest_department = 28 - (department_subject or 0)
-
-        filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
-        remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 8 - (information_subject or 0)
-
-        filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
-        field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
-
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0) + (remedial_subject or 0)
-        rest_specialize = 92 - (specialize_subject or 0)
-
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 20 - (foreign_language or 0)
-        
-        total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
-
-        rest_credit = 128 - (total_credit or 0 )
-        return render(request, 'economics_total.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'gakubu_subject': gakubu_subject, 
-                                              'department_subject': department_subject, 'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu, 'rest_department': rest_department, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject, 'filtered_required': filtered_required, 'required_list': required_list})
-
-    elif all([user_faculty == "経営学部", user_grade == '1年']):
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 20 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-        rest_second = 2 - (second_language or 0)
-
-        #基礎科目の処理
-        filtered_basic = Subject.objects.filter(category_id = 7, user=request.user)
-        basic_subject = filtered_basic.aggregate(Sum('credit'))['credit__sum']
-        rest_basic = 14 - (basic_subject or 0)
-
-        #基幹科目の処理
-        filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
-        core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
-        rest_core = 32 - (core_subject or 0)
-
-        #関連科目の処理
-        filtered_relate = Subject.objects.filter(category_id = 11, user=request.user)
-        relate_subject = filtered_relate.aggregate(Sum('credit'))['credit__sum']
-
-        #情報科目の処理
-        filtered_information = Subject.objects.filter(category_id = 8,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 10 - (information_subject or 0)
-
-        #総合科目の処理
-        filterd_comprehensive = Subject.objects.filter(category_id = 12, user=request.user)
-        comprehensive_subject = filterd_comprehensive.aggregate(Sum('credit'))['credit__sum']
-        rest_comprehensive = 8 - (comprehensive_subject or 0)
-        
-        #自由科目の処理
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        #他コース科目の処理
-        filtered_other_course = Subject.objects.filter(category_id = 13, user=request.user) 
-        other_course = filtered_other_course.aggregate(Sum('credit'))['credit__sum']
-
-        #他学科科目の処理
-        filtered_other_subject = Subject.objects.filter(category_id = 14, user=request.user)
-        other_subject = filtered_other_subject.aggregate(Sum('credit'))['credit__sum']
-
-        #専門科目の処理
-        specialize_subject = (basic_subject or 0) + (core_subject or 0)+ (comprehensive_subject or 0) + (information_subject or 0) + (relate_subject or 0) + (other_course or 0) + (other_subject or 0)
-        rest_specialize = 86 - (specialize_subject or 0)
-
-        #外国語科目の処理
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 18 - (foreign_language or 0)
-        
-        total_credit = (kyoutu or 0) + (specialize_subject or 0) + (foreign_language or 0)
-        #total_credit = all_credit - (free_subject or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 124 - (total_credit or 0 )
-        return render(request, 'business_administration.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'basic_subject': basic_subject, 'other_course': other_course, 'ohter_subject': other_subject,
-                                              'core_subject': core_subject, 'information_subject':information_subject, 'comprehensive_subject':comprehensive_subject, 'relate_subject': relate_subject, 'rest_core': rest_core,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_second': rest_second,
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_basic': rest_basic, 'rest_comprehensive': rest_comprehensive, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject})
-
-    elif all([user_faculty == "経営学部", user_grade == '2年']):
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 20 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-        rest_second = 2 - (second_language or 0)
-
-        #基礎科目の処理
-        filtered_basic = Subject.objects.filter(category_id = 7, user=request.user)
-        basic_subject = filtered_basic.aggregate(Sum('credit'))['credit__sum']
-        rest_basic = 16 - (basic_subject or 0)
-
-        #基幹科目の処理
-        filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
-        core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
-        rest_core = 32 - (core_subject or 0)
-
-        #関連科目の処理
-        filtered_relate = Subject.objects.filter(category_id = 11, user=request.user)
-        relate_subject = filtered_relate.aggregate(Sum('credit'))['credit__sum']
-
-        #情報科目の処理
-        filtered_information = Subject.objects.filter(category_id = 8,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 10 - (information_subject or 0)
-
-        #総合科目の処理
-        filterd_comprehensive = Subject.objects.filter(category_id = 12, user=request.user)
-        comprehensive_subject = filterd_comprehensive.aggregate(Sum('credit'))['credit__sum']
-        rest_comprehensive = 8 - (comprehensive_subject or 0)
-        
-        #自由科目の処理
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        #他コース科目の処理
-        filtered_other_course = Subject.objects.filter(category_id = 13, user=request.user) 
-        other_course = filtered_other_course.aggregate(Sum('credit'))['credit__sum']
-
-        #他学科科目の処理
-        filtered_other_subject = Subject.objects.filter(category_id = 14, user=request.user)
-        other_subject = filtered_other_subject.aggregate(Sum('credit'))['credit__sum']
-
-        #専門科目の処理
-        specialize_subject = (basic_subject or 0) + (core_subject or 0)+ (comprehensive_subject or 0) + (information_subject or 0) + (relate_subject or 0) + (other_course or 0) + (other_subject or 0)
-        rest_specialize = 86 - (specialize_subject or 0)
-
-        #外国語科目の処理
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 18 - (foreign_language or 0)
-        
-        total_credit = (kyoutu or 0) + (specialize_subject or 0) + (foreign_language or 0)
-        #total_credit = all_credit - (free_subject or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 124 - (total_credit or 0 )
-        return render(request, 'business_administration.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'basic_subject': basic_subject, 'other_course': other_course, 'ohter_subject': other_subject,
-                                              'core_subject': core_subject, 'information_subject':information_subject, 'comprehensive_subject':comprehensive_subject, 'relate_subject': relate_subject, 'rest_core': rest_core,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_second': rest_second,
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_basic': rest_basic, 'rest_comprehensive': rest_comprehensive, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject})
-
-    elif all([user_faculty == "経営学部", user_grade == '3年']):
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 20 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-        rest_second = 2 - (second_language or 0)
-
-        #基礎科目の処理
-        filtered_basic = Subject.objects.filter(category_id = 7, user=request.user)
-        basic_subject = filtered_basic.aggregate(Sum('credit'))['credit__sum']
-        rest_basic = 14 - (basic_subject or 0)
-
-        #基幹科目の処理
-        filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
-        core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
-        rest_core = 32 - (core_subject or 0)
-
-        #関連科目の処理
-        filtered_relate = Subject.objects.filter(category_id = 11, user=request.user)
-        relate_subject = filtered_relate.aggregate(Sum('credit'))['credit__sum']
-
-        #情報科目の処理
-        filtered_information = Subject.objects.filter(category_id = 8,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 10 - (information_subject or 0)
-
-        #総合科目の処理
-        filterd_comprehensive = Subject.objects.filter(category_id = 12, user=request.user)
-        comprehensive_subject = filterd_comprehensive.aggregate(Sum('credit'))['credit__sum']
-        rest_comprehensive = 8 - (comprehensive_subject or 0)
-        
-        #自由科目の処理
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        #他コース科目の処理
-        filtered_other_course = Subject.objects.filter(category_id = 13, user=request.user) 
-        other_course = filtered_other_course.aggregate(Sum('credit'))['credit__sum']
-
-        #他学科科目の処理
-        filtered_other_subject = Subject.objects.filter(category_id = 14, user=request.user)
-        other_subject = filtered_other_subject.aggregate(Sum('credit'))['credit__sum']
-
-        #専門科目の処理
-        specialize_subject = (basic_subject or 0) + (core_subject or 0)+ (comprehensive_subject or 0) + (information_subject or 0) + (relate_subject or 0) + (other_course or 0) + (other_subject or 0)
-        rest_specialize = 86 - (specialize_subject or 0)
-
-        #外国語科目の処理
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 18 - (foreign_language or 0)
-        
-        total_credit = (kyoutu or 0) + (specialize_subject or 0) + (foreign_language or 0)
-        #total_credit = all_credit - (free_subject or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 124 - (total_credit or 0 )
-        return render(request, 'business_administration.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'basic_subject': basic_subject, 'other_course': other_course, 'ohter_subject': other_subject,
-                                              'core_subject': core_subject, 'information_subject':information_subject, 'comprehensive_subject':comprehensive_subject, 'relate_subject': relate_subject, 'rest_core': rest_core,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_second': rest_second,
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_basic': rest_basic, 'rest_comprehensive': rest_comprehensive, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject})
-
-    elif all([user_faculty == "経営学部", user_grade == '4年']):
-        filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
-        kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
-        rest_kyoutu = 20 - (kyoutu or 0)
-
-        filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
-        first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-        rest_fisrt = 14 - (first_language or 0)
-
-        filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
-        second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
-        rest_second = 2 - (second_language or 0)
-
-        #基礎科目の処理
-        filtered_basic = Subject.objects.filter(category_id = 7, user=request.user)
-        basic_subject = filtered_basic.aggregate(Sum('credit'))['credit__sum']
-        rest_basic = 14 - (basic_subject or 0)
-
-        #基幹科目の処理
-        filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
-        core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
-        rest_core = 32 - (core_subject or 0)
-
-        #関連科目の処理
-        filtered_relate = Subject.objects.filter(category_id = 11, user=request.user)
-        relate_subject = filtered_relate.aggregate(Sum('credit'))['credit__sum']
-
-        #情報科目の処理
-        filtered_information = Subject.objects.filter(category_id = 8,  user=request.user)
-        information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-        rest_infomation = 10 - (information_subject or 0)
-
-        #総合科目の処理
-        filterd_comprehensive = Subject.objects.filter(category_id = 12, user=request.user)
-        comprehensive_subject = filterd_comprehensive.aggregate(Sum('credit'))['credit__sum']
-        rest_comprehensive = 8 - (comprehensive_subject or 0)
-        
-        #自由科目の処理
-        filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
-        free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
-
-        #他コース科目の処理
-        filtered_other_course = Subject.objects.filter(category_id = 13, user=request.user) 
-        other_course = filtered_other_course.aggregate(Sum('credit'))['credit__sum']
-
-        #他学科科目の処理
-        filtered_other_subject = Subject.objects.filter(category_id = 14, user=request.user)
-        other_subject = filtered_other_subject.aggregate(Sum('credit'))['credit__sum']
-
-        #専門科目の処理
-        specialize_subject = (basic_subject or 0) + (core_subject or 0)+ (comprehensive_subject or 0) + (information_subject or 0) + (relate_subject or 0) + (other_course or 0) + (other_subject or 0)
-        rest_specialize = 86 - (specialize_subject or 0)
-
-        #外国語科目の処理
-        foreign_language = (first_language or 0) + (second_language or 0)
-        rest_foreign = 18 - (foreign_language or 0)
-        
-        total_credit = (kyoutu or 0) + (specialize_subject or 0) + (foreign_language or 0)
-        #total_credit = all_credit - (free_subject or 0)
-
-        # kyoutu = Subject.objects.filter(category_id = 4)
-        rest_credit = 124 - (total_credit or 0 )
-        return render(request, 'business_administration.html', {'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 'basic_subject': basic_subject, 'other_course': other_course, 'ohter_subject': other_subject,
-                                              'core_subject': core_subject, 'information_subject':information_subject, 'comprehensive_subject':comprehensive_subject, 'relate_subject': relate_subject, 'rest_core': rest_core,
-                                              'specialize_subject':specialize_subject, 'foreign_language': foreign_language, 'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_second': rest_second,
-                                              'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_basic': rest_basic, 'rest_comprehensive': rest_comprehensive, 'rest_information': rest_infomation, 
-                                              'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject})
+            return render(request, 'law_total.html', law_data)

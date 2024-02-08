@@ -26,11 +26,13 @@ class Student(models.Model):
     choices=(('経済学科', '経済学科'), ('国際経済学科', '国際経済学科'), 
             ('総合経済政策学科', '総合経済政策学科'), ('経営学科', '経営学科'),
             ('商学科', '商学科'), ('会計学科', '会計学科'), 
-            ('キャリアマネジメント学科', 'キャリアマネジメント学科')),
+            ('キャリアマネジメント学科', 'キャリアマネジメント学科'),
+            ('法律学科', '法律学科')),
     default='経済学科'
   )
   user= models.OneToOneField(settings.AUTH_USER_MODEL, 
 on_delete=models.CASCADE, blank=True, null=True)
+  
   
 
 class Category(models.Model):
