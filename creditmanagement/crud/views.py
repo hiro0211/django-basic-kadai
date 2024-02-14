@@ -123,6 +123,40 @@ def scrape_faculty_of_low(chrome_driver, semester_index, user, first_index=9):
         else:
           category = kamoku
 
+def scrape_faculty_of_science_engineering(chrome_driver, semester_index, user, first_index=8):
+    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[first_index + 2 * semester_index]  
+
+    Subject.objects.filter(user=user).delete
+    category = '' 
+    for tr in semester_elements.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
+      try:
+        kamoku = tr.find_element(By.CSS_SELECTOR, 'td.kamokuList').text    
+        credit = tr.find_element(By.CSS_SELECTOR, 'td.tdTaniList').text
+        score = tr.find_element(By.CSS_SELECTOR, 'td.tdSotenList').text
+      except Exception:
+        pass
+      else:
+        if credit:
+          category_ = category
+          if category_ == '外国語科目':
+            if '英語' in kamoku or 'ライティング' in kamoku or 'English' in kamoku:
+              category_ = '英語科目'
+            else:
+              category_ = '第二外国語科目'
+          is_required = False
+          if any(["基礎ゼミ" in kamoku, "情報処理実習" in kamoku, "英語1A" in kamoku, "英語1B" in kamoku,
+                  "英語2A" in kamoku, "英語2B" in kamoku, "英語3A" in kamoku, "英語3B" in kamoku, "Communicative English 1A" in kamoku,
+                  "Communicative English 1B" in kamoku, "Communicative English 2A" in kamoku, "Communicative English 2B" in kamoku,
+                  "ベーシック・ライティングA" in kamoku, "ベーシック・ライティングB" in kamoku, "専門演習Ⅰ" in kamoku, "専門演習Ⅱ" in kamoku]):
+            is_required = True
+
+            #print(category, kamoku)
+          category_model , _ = Category.objects.get_or_create(name=category_)
+          Subject.objects.create(category=category_model, name=kamoku, credit=credit, score=score, is_required=is_required, user=user)    
+        
+        else:
+          category = kamoku
+
 class LoadDataFromSite(generic.FormView):
     template_name= "crud/unipa_register.html"
     form_class = SiteAuthDataForm
@@ -133,7 +167,7 @@ class LoadDataFromSite(generic.FormView):
         # test.pyの内容をこの下に書く
         """
         chrome_options = webdriver.ChromeOptions()
-        chrome_options.add_argument('--headless')  # ヘッドレスモードを有効にする
+        chrome_options.add_argument('--headless') 
 
         # ChromeDriverにChromeOptionsを渡してwebdriverを初期化
         chrome_driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
@@ -214,7 +248,7 @@ class LoadDataFromSite(generic.FormView):
     
           return redirect("list")
 
-        elif all([user_grade == '3年', user_semester == "前期", user_faculty == "経済学部"]):
+        elif all([user_grade == '3年', user_semester == "後期", user_faculty == "経済学部"]):
 
           for i in range(5):
             scrape_and_save_data(chrome_driver, i, self.request.user)
@@ -235,7 +269,7 @@ class LoadDataFromSite(generic.FormView):
         #経営学部の処理を記述
         elif all([user_grade == '2年', user_faculty == "経営学部"]):
             #成績情報を取得
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[7]
+            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[6]
 
             Subject.objects.filter(user=self.request.user).delete
             category = '' 
@@ -265,7 +299,7 @@ class LoadDataFromSite(generic.FormView):
             return redirect("list")
 
         elif all([user_grade == '3年',  user_faculty == "経営学部"]):
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[7]
+            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[6]
 
             Subject.objects.filter(user=self.request.user).delete
             category = '' 
@@ -578,9 +612,11 @@ def calculate_economics(request, promotion_index, user):
     information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
     rest_infomation = 8 - (information_subject or 0)
 
+    #分野科目
     filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
     field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
 
+    #自由科目
     filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
     free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
 
@@ -590,8 +626,11 @@ def calculate_economics(request, promotion_index, user):
     foreign_language = (first_language or 0) + (second_language or 0)
     rest_foreign = 20 - (foreign_language or 0)
     
-    total_credit = (kyoutu or 0) + (first_language or 0) + (second_language or 0) + (gakubu_subject or 0) + (department_subject or 0) + (information_subject or 0) + (field_subject or 0) + (remedial_subject or 0) 
+    total_credit = (kyoutu or 0) + (foreign_language or 0) + (specialize_subject or 0) 
     #total_credit = all_credit - (free_subject or 0)
+
+    #2年生へへ進級するために必要な専門科目
+    promotion_specialize = 4 - (specialize_subject or 0)
 
     #3年生への進級要件
     rest_promotion = promotion_index - (total_credit or 0)
@@ -606,7 +645,7 @@ def calculate_economics(request, promotion_index, user):
         'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu,
         'rest_department': rest_department, 'rest_information': rest_infomation, 'rest_specialize': rest_specialize,
         'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 'filtered_required': filtered_required,
-        'required_list': required_list
+        'required_list': required_list, 'promotion_specialize': promotion_specialize,
     }
 
 def calculate_business(request, promotion_index, user):
