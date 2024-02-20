@@ -40,8 +40,34 @@ class SubjectListView(LoginRequiredMixin, ListView):
 
   def get_context_data(self, *args, **kwargs):
     context = super().get_context_data(*args, **kwargs)
+    category_list = Category.objects.all()
+    if self.request.user.student.faculty == "経済学部":
+        category_list = category_list.filter(
+          name__in = [
+            '共通教養科目', '第一外国語（英語）', '第二外国語', '学科共通科目',
+            '学科共通科目', '分野科目', '学科共通科目(リメディアル)', '学科共通科目(情報専門科目)', 
+            '自由科目', 
+          ]
+        )
 
-    context["categories"] = Category.objects.all()
+    elif self.request.user.student.faculty == '経営学部':
+          category_list = category_list.filter(
+            name__in = [
+              '共通教養科目', '第一外国語（英語）', '第二外国語', '基礎科目', 
+              '情報科目', '基幹科目', '関連科目', '総合科目', '他コース科目',
+              '他学科科目', '直上科目',
+            ]
+          )
+
+    elif self.request.user.student.faculty == '法学部':
+          category_list = category_list.filter(
+            name__in = [
+              '人間性・社会性科目群', '地域性・国際性科目群', '英語科目', '第二外国語科目', 
+              'その他', '自由科目','課題設定・問題解決科目群'
+            ]
+          )
+
+    context["categories"] = category_list
     return context
   
   def get_queryset(self):
@@ -79,6 +105,41 @@ def scrape_and_save_data(chrome_driver, semester_index, user, first_index=9):
               category_ = '第二外国語'
           is_required = False
           if any(["基礎ゼミ" in kamoku, "演習Ⅰ" in kamoku, "演習Ⅱ" in kamoku]):
+            is_required = True
+          if "外国語演習Ⅰ" in kamoku:
+            is_required = False  
+            #print(category, kamoku)
+          category_model , _ = Category.objects.get_or_create(name=category_)
+          Subject.objects.create(category=category_model, name=kamoku, credit=credit, score=score, is_required=is_required, user=user)    
+        
+        else:
+          category = kamoku
+
+def scrape_faculty_of_business(chrome_driver, user):
+    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[9]  
+
+    Subject.objects.filter(user=user).delete
+    category = '' 
+    for tr in semester_elements.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
+      try:
+        kamoku = tr.find_element(By.CSS_SELECTOR, 'td.kamokuList').text    
+        credit = tr.find_element(By.CSS_SELECTOR, 'td.tdTaniList').text
+        score = tr.find_element(By.CSS_SELECTOR, 'td.tdSotenList').text
+      except Exception:
+        pass
+      else:
+        if credit:
+          category_ = category
+          if category_ == '外国語科目':
+            if '英語' in kamoku or 'イングリッシュ' in kamoku or 'ＴＯＥＩＣ' in kamoku:
+              category_ = '第一外国語（英語）'
+            else:
+              category_ = '第二外国語'
+          is_required = False
+          if any(["基礎ゼミ" in kamoku, "演習Ⅰ" in kamoku, "演習Ⅱ" in kamoku, "英語1A" in kamoku, 
+                  "英語1B" in kamoku, "英語2A" in kamoku, "英語2B" in kamoku, "オーラルイングリッシュ1A" in kamoku,
+                  "オーラルイングリッシュ1B" in kamoku, "オーラルイングリッシュ2A" in kamoku, "オーラルイングリッシュ2B" in kamoku,
+                  ]):
             is_required = True
           if "外国語演習Ⅰ" in kamoku:
             is_required = False  
@@ -267,97 +328,22 @@ class LoadDataFromSite(generic.FormView):
           return redirect("list")
         
         #経営学部の処理を記述
-        elif all([user_grade == '2年', user_faculty == "経営学部"]):
+        elif (user_department == 'キャリアマネジメント学科' or user_department =='経営学科') and  user_faculty == "経営学部":
             #成績情報を取得
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[6]
-
-            Subject.objects.filter(user=self.request.user).delete
-            category = '' 
-            for tr in grade_element.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
-              try:
-                kamoku = tr.find_element(By.CSS_SELECTOR, 'td.kamokuList').text    
-                credit = tr.find_element(By.CSS_SELECTOR, 'td.tdTaniList').text
-                score = tr.find_element(By.CSS_SELECTOR, 'td.tdSotenList').text
-              except Exception:
-                pass
-              else:
-                if credit:
-                  category_ = category
-                  if category_ == '外国語科目':
-                    if '英語' in kamoku or 'イングリッシュ' in kamoku or 'ＴＯＥＩＣ' in kamoku:
-                      category_ = '第一外国語科目'
-                    else:
-                      category_ = '第二外国語科目'
-                    #print(category, kamoku)
-                
-                  category_model , _ = Category.objects.get_or_create(name=category_)
-                  Subject.objects.create(category=category_model, name=kamoku, credit=credit, score=score, user=self.request.user)    
-                
-                else:
-                  category = kamoku
-
-            return redirect("list")
+          for i in range(1):
+            scrape_faculty_of_business(chrome_driver, self.request.user)
+          return redirect("list")
 
         elif all([user_grade == '3年',  user_faculty == "経営学部"]):
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[6]
-
-            Subject.objects.filter(user=self.request.user).delete
-            category = '' 
-            for tr in grade_element.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
-              try:
-                kamoku = tr.find_element(By.CSS_SELECTOR, 'td.kamokuList').text    
-                credit = tr.find_element(By.CSS_SELECTOR, 'td.tdTaniList').text
-                score = tr.find_element(By.CSS_SELECTOR, 'td.tdSotenList').text
-              except Exception:
-                pass
-              else:
-                if credit:
-                  category_ = category
-                  if category_ == '外国語科目':
-                    if '英語' in kamoku or 'イングリッシュ' in kamoku or 'ＴＯＥＩＣ' in kamoku:
-                      category_ = '第一外国語科目'
-                    else:
-                      category_ = '第二外国語科目'
-                    #print(category, kamoku)
-                  category_model , _ = Category.objects.get_or_create(name=category_)
-                  Subject.objects.create(category=category_model, name=kamoku, credit=credit, score=score, user=self.request.user)    
-                
-                else:
-                  category = kamoku
-
-            return redirect("list")
+          for i in range(1):
+            scrape_faculty_of_business(chrome_driver, i, self.request.user)
+          return redirect("list")
 
         elif all([user_grade == '4年', user_faculty == "経営学部"]):
 
-            #成績情報を取得
-            grade_element = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[7]
-
-            Subject.objects.filter(user=self.request.user).delete
-            category = '' 
-            for tr in grade_element.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
-              try:
-                kamoku = tr.find_element(By.CSS_SELECTOR, 'td.kamokuList').text    
-                credit = tr.find_element(By.CSS_SELECTOR, 'td.tdTaniList').text
-                score = tr.find_element(By.CSS_SELECTOR, 'td.tdSotenList').text
-              except Exception:
-                pass
-              else:
-                if credit:
-                  category_ = category
-                  if category_ == '外国語科目':
-                    if '英語' in kamoku or 'イングリッシュ' in kamoku or 'ＴＯＥＩＣ' in kamoku:
-                      category_ = '第一外国語科目'
-                    else:
-                      category_ = '第二外国語科目'
-                    #print(category, kamoku)
-                
-                  category_model , _ = Category.objects.get_or_create(name=category_)
-                  Subject.objects.create(category=category_model, name=kamoku, credit=credit, score=score, user=self.request.user)    
-                
-                else:
-                  category = kamoku
-
-            return redirect("list")
+          for i in range(1):
+            scrape_faculty_of_business(chrome_driver, i, self.request.user)
+          return redirect("list")
         
         #法律学部の処理を記述
         elif all([user_grade == '1年', user_faculty == "法学部", user_semester == "後期"]):
@@ -413,7 +399,7 @@ class LoadDataFromSite(generic.FormView):
     def get_success_url(self):
       return resolve_url('list', kwargs={'pk': self.object.id})  
 """
-    
+
 class SubjectUpdateView(LoginRequiredMixin, UpdateView):
   model = Subject
   fields = '__all__'
@@ -454,10 +440,10 @@ class CategorySubjectListView(ListView):
   template_name = "crud/category_subject.html"
   context_object_name = "subjects"
 
-  def get_queryset(self, **kwargs):
+  def get_queryset(self):
     category_name = self.kwargs["category"]
     category = get_object_or_404(Category, name=category_name)
-    return super().get_queryset().filter(category=category)
+    return super().get_queryset().filter(user=self.request.user, category=category)
 
 class LoginView(LoginView):
   form_class = LoginForm
@@ -581,7 +567,7 @@ class StudentChangeView(LoginRequiredMixin, FormView):
         messages.error(self.request, 'プロフィールの更新に失敗しました。')
         return super().form_invalid(form)
 
-def calculate_economics(request, promotion_index, user):
+def calculate_economics(request, promotion_index, user_grade):
     required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ"]
     filtered_required = Subject.objects.filter(is_required=True, user=request.user)
     filtered_required = [subject.name for subject in filtered_required]
@@ -629,15 +615,25 @@ def calculate_economics(request, promotion_index, user):
     total_credit = (kyoutu or 0) + (foreign_language or 0) + (specialize_subject or 0) 
     #total_credit = all_credit - (free_subject or 0)
 
-    #2年生へへ進級するために必要な専門科目
-    promotion_specialize = 4 - (specialize_subject or 0)
+    # #2年生へへ進級するために必要な専門科目
+    # promotion_specialize = 4 - (specialize_subject or 0)
+
+    promotion_specialize = None
+    rest_promotion = None
+    
+    if user_grade == '1年':
+        promotion_specialize = 4 - (specialize_subject or 0)
+    elif user_grade != '4年':
+        rest_promotion = promotion_index - (total_credit or 0)
+    else:
+        pass
 
     #3年生への進級要件
     rest_promotion = promotion_index - (total_credit or 0)
 
     rest_credit = 128 - (total_credit or 0 )
 
-    return {
+    response_dict = {
         'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language, 
         'gakubu_subject': gakubu_subject, 'department_subject': department_subject, 
         'information_subject':information_subject, 'field_subject':field_subject, 'remedial_subject': remedial_subject,
@@ -645,10 +641,22 @@ def calculate_economics(request, promotion_index, user):
         'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt, 'rest_gakubu': rest_gakubu,
         'rest_department': rest_department, 'rest_information': rest_infomation, 'rest_specialize': rest_specialize,
         'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 'filtered_required': filtered_required,
-        'required_list': required_list, 'promotion_specialize': promotion_specialize,
+        'required_list': required_list, 
     }
+    if user_grade == '1年生':
+      response_dict['promotion_specialize'] = 4 - (specialize_subject or 0)
+    elif user_grade != '4年生':
+      response_dict['rest_promotion'] = promotion_index - (total_credit or 0)
+    return response_dict
 
-def calculate_business(request, promotion_index, user):
+def calculate_business(request, promotion_index, user_grade):
+    required_list = ["基礎ゼミ", "演習Ⅰ", "演習Ⅱ", "英語1A", "英語1B", 
+                    "英語2A", "英語2B", "オーラルイングリッシュ1A", 
+                    "オーラルイングリッシュ1B", "オーラルイングリッシュ2A",
+                    "オーラルイングリッシュ2B", ]
+    filtered_required = Subject.objects.filter(is_required=True, user=request.user)
+    filtered_required = [subject.name for subject in filtered_required]    
+
     filtered_kyoutu = Subject.objects.filter(category_id = 1, user=request.user)
     kyoutu = filtered_kyoutu.aggregate(Sum('credit'))['credit__sum']
     rest_kyoutu = 20 - (kyoutu or 0)
@@ -708,19 +716,30 @@ def calculate_business(request, promotion_index, user):
     total_credit = (kyoutu or 0) + (specialize_subject or 0) + (foreign_language or 0)
     #total_credit = all_credit - (free_subject or 0)
 
-    rest_promotion = promotion_index - (total_credit or 0)
-
     rest_credit = 124 - (total_credit or 0 )
 
-    return { 'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language,
+    #2年生次進級に必要な専門科目,2,3,4年次へ進級するための必要単位
+    promotion_specialize = None
+    rest_promotion = None
+
+    if user_grade == '1年':
+      promotion_specialize = 4 - (specialize_subject or 0)
+    else:
+      pass
+
+    response_dict = { 'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language,
               'basic_subject': basic_subject, 'core_subject': core_subject, 'comprehensive_subject': comprehensive_subject,
               'information_subject':information_subject, 'relate_subject': relate_subject, 'other_course': other_course,
               'other_subject': other_subject, 'specialize_subject': specialize_subject, 'foreign_language': foreign_language,
               'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt,
               'rest_second': rest_second, 'rest_basic': rest_basic, 'rest_core': rest_core, 'rest_comprehensive': rest_comprehensive,
               'rest_infomation': rest_infomation, 'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject,
-              'rest_promotion': rest_promotion
+              'rest_promotion': rest_promotion, 'required_list': required_list, 'filtered_required': filtered_required
     }
+    if user_grade == '1年':
+      response_dict['promotion_specialize'] = 4 - (specialize_subject or 0)
+
+    return response_dict
 
 def calculate_law(request, promotion_index, user):
     #共通教養科目、課題設定・問題解決科目群

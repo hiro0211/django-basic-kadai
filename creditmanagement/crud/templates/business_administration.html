@@ -10,12 +10,61 @@
             <div class="card">
                 <div class="card-body">
                     <ul class="list-group list-group-flush">
-                        <li class="list-group-item h3">卒業までの単位数</li>
-                        <li class="list-group-item h4">卒業まであと合計 <span class="fw-bolder">{% if rest_credit > 0 %}{{ rest_credit }}{% else %}0{% endif %}</span>単位</li>
-                        <li class="list-group-item h4">進級まであと合計 <span class="fw-bolder">{% if rest_promotion > 0 %}{{ rest_promotion }}{% else %}0{% endif %}</span> 単位</li>
-                        <li class="list-group-item">進級まであと専門科目 <span class="fw-bolder">{% if promotion_specialize > 0 %}{{ promotion_specialize }}{% else %}0{% endif %}</span> 単位</li>
+                        {% if rest_promotion %}
+                            <li class="list-group-item h4">進級まであと合計 <span class="fw-bolder">{% if rest_promotion > 0 %}{{ rest_promotion }}{% else %}0{% endif %}</span> 単位</li>
+                        {% endif %}
+                        
+                        {% if promotion_specialize %}
+                          <li class="list-group-item">進級まであと専門科目 <span class="fw-bolder">{% if promotion_specialize > 0 %}{{ promotion_specialize }}{% else %}0{% endif %}</span> 単位</li>
+                        {% endif %}
                         <li class="list-group-item">共通教養科目あと <span class="fw-bolder">{% if rest_kyoutu > 0 %}{{ rest_kyoutu }}{% else %}0{% endif %}</span>単位</li>
+                            {% if rest_kyoutu <= 0 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 100%;">達成!</div>
+                            </div>
+                            {% elif rest_kyoutu <= 10 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 90%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 20 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 80%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 30 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 70%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 40 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 60%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 50 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 50%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 60 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 40%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 70 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 30%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 80 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 20%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 90 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 10%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% elif rest_kyoutu <= 100 %}
+                            <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100">
+                                <div class="progress-bar" style="width: 0%;">進級まであと合計 {% if rest_kyoutu >= 0 %}{{ rest_kyoutu }}{% else %}0{% endif %} 単位</div>
+                            </div>
+                            {% endif %}
                         <li class="list-group-item">外国語科目あと <span class="fw-bolder">{% if rest_foreign > 0 %}{{ rest_foreign }}{% else %}0{% endif %}</span> 単位</li>
+                        
                         <li class="list-group-item">第一外国語科目あと <span class="fw-bolder">{% if rest_first > 0 %}{{ rest_first }}{% else %}0{% endif %}</span> 単位</li>
                         <li class="list-group-item">第二外国語科目あと <span class="fw-bolder">{% if rest_second > 0 %}{{ rest_second }}{% else %}0{% endif %}</span> 単位</li>
                         <li class="list-group-item h3">卒業まで専門科目あと <span class="fw-bolder">{% if rest_specialize > 0 %}{{ rest_specialize }}{% else %}0{% endif %}</span> 単位</li>
@@ -23,6 +72,9 @@
                         <li class="list-group-item">情報科目あと <span class="fw-bolder">{% if rest_information > 0 %}{{ rest_information }}{% else %}0{% endif %}</span> 単位</li>
                         <li class="list-group-item">基幹科目あと <span class="fw-bolder">{% if rest_core > 0 %}{{ rest_core }}{% else %}0{% endif %}</span> 単位</li>
                         <li class="list-group-item">総合科目あと <span class="fw-bolder">{% if rest_comprehensive > 0 %}{{ rest_comprehensive }}{% else %}0{% endif %}</span> 単位</li>
+                        <li class="list-group-item">必須科目 <span class="fw-bolder">
+                          {% for kamoku in required_list %} {% if not kamoku in filtered_required %}
+                          {{ kamoku }} {% endif %} {% endfor %}</span></li>
                     </ul>
                 </div>
             </div>
@@ -41,6 +93,7 @@
                         <li class="list-group-item">第一外国語科目 {% if first_language > 0 %}{{ first_language }}{% else %}0{% endif %} 単位</li>
                         <li class="list-group-item">第二外国語科目 {% if second_language > 0 %}{{ second_language }}{% else %}0{% endif %} 単位</li>
                         <li class="list-group-item h5">専門科目 {% if specialize_subject > 0 %}{{ specialize_subject }}{% else %}0{% endif %} 単位</li>
+                        <li class="list-group-item">取得済み必須科目 <span class="fw-bolder">{% for kamoku in filtered_required %} {{ kamoku }} {% endfor %}</span></li>
                         <li class="list-group-item">基礎科目 {% if basic_subject > 0 %}{{ basic_subject }}{% else %}0{% endif %} 単位</li>
                         <li class="list-group-item">情報科目 {% if information_subject > 0 %}{{ information_subject }}{% else %}0{% endif %} 単位</li>
                         <li class="list-group-item">基幹科目 {% if core_subject > 0 %}{{ core_subject }}{% else %}0{% endif %} 単位
