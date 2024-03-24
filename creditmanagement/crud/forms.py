@@ -25,6 +25,7 @@ class SignUpForm2(forms.ModelForm):
     model = Student
     fields = ["grade", "faculty", "department", "semester"]
   
+# ユーザーのプロフィール変更フォーム
 class StudentChangeForm(ModelForm):
   class Meta:
     model = Student
@@ -55,4 +56,4 @@ class SiteAuthDataForm(forms.Form):
   password = forms.CharField(label="Unipaパスワード", widget=forms.PasswordInput(), min_length=8)
 
 class ConfirmDeleteForm(forms.Form):
-  confirm_delete = forms.BooleanField(label= "本当に削除しても？", initial= False, required=False)
+  confirm_delete = forms.BooleanField(label= "本当に削除しますか？", initial= False, required=False)

@@ -1,8 +1,8 @@
 {{ user.email }} 様
 
+パスーワードリセットの申請を受け付けました。
 下記URLよりサイトにアクセスの上、パスワードの再設定を行ってください。
 
 再設定用URL
 {{ protocol}}://{{ domain }}{% url 'password_reset_confirm' uid token %}
 
-ほにゃらら

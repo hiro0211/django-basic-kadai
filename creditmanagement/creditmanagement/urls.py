@@ -19,6 +19,8 @@ from django.urls import path, include
 from crud import views
 from crud.views import calculate_total, CategorySubjectListView, get_department_choices
 
+app_name = 'crud'
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.TopView.as_view(), name="top"),

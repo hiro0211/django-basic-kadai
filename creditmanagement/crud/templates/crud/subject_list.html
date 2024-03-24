@@ -56,7 +56,7 @@
               <li class="list-group-item list-group-item-primary"><span class="fw-bolder">{{ subject.credit }}</span>単位</li>
               <li class="list-group-item"><span class="fw-bolder">{{ subject.score }}</span>点</li>
             </ul>
-            <button class="btn btn-outline-info w-100" style="margin-top: 10px;" onclick="location.href='{% url 'edit' pk=subject.pk %}'">編集</button>
+            <!-- <button class="btn btn-outline-info w-100" style="margin-top: 10px;" onclick="location.href='{% url 'edit' pk=subject.pk %}'">編集</button> -->
             <button class="btn btn-outline-danger w-100" style="margin-top: 10px;" onclick="location.href='{% url 'delete' pk=subject.pk %}'">削除</button>
         </div>
       </div>

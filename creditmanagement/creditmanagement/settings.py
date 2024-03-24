@@ -150,8 +150,13 @@ LOGOUT_REDIRECT_URL = 'top'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 DEFAULT_AUTO_EMAIL = 'arimurahiroaki40@gmail.com'
+
 EMAIL_HOST = 'smtp.gmail.com'
+
 EMAIL_PORT = 587
+
 EMAIL_USE_TLS = True
+
 EMAIL_HOST_USER = 'arimurahiroaki40@gmail.com'
+
 EMAIL_HOST_PASSWORD = 'nfqg xapw vzpv lvos'

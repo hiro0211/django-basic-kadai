@@ -44,7 +44,7 @@ class SubjectListView(LoginRequiredMixin, ListView):
     if self.request.user.student.faculty == "経済学部":
         category_list = category_list.filter(
           name__in = [
-            '共通教養科目', '第一外国語（英語）', '第二外国語', '学科共通科目',
+            '共通教養科目', '第一外国語（英語）', '第二外国語', '学部共通科目',
             '学科共通科目', '分野科目', '学科共通科目(リメディアル)', '学科共通科目(情報専門科目)', 
             '自由科目', 
           ]
@@ -83,10 +83,10 @@ class SubjectCreateView(LoginRequiredMixin, CreateView):
   model = Subject
   fields = '__all__'
 
-def scrape_and_save_data(chrome_driver, semester_index, user, first_index=9):
-    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[first_index + 2 * semester_index]  
+def scrape_and_save_data(chrome_driver, semester_index, user, first_index=43):
 
-    Subject.objects.filter(user=user).delete
+    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[first_index + 2 * semester_index]  
+    
     category = '' 
     for tr in semester_elements.find_elements(By.CSS_SELECTOR, 'table>tbody>tr')[1:]:
       try:
@@ -116,7 +116,7 @@ def scrape_and_save_data(chrome_driver, semester_index, user, first_index=9):
           category = kamoku
 
 def scrape_faculty_of_business(chrome_driver, user):
-    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[9]  
+    semester_elements = chrome_driver.find_elements(By.CSS_SELECTOR, 'table.outline>tbody>tr')[51]  
 
     Subject.objects.filter(user=user).delete
     category = '' 
@@ -225,24 +225,22 @@ class LoadDataFromSite(generic.FormView):
     def form_valid(self, form):
         user_id = form.cleaned_data['user_id']
         password_text = form.cleaned_data['password']
-        # test.pyの内容をこの下に書く
+        
+        # 以下の文はawsの本番環境ではコメントアウト解除
         """
         chrome_options = webdriver.ChromeOptions()
         chrome_options.add_argument('--headless') 
-
-        # ChromeDriverにChromeOptionsを渡してwebdriverを初期化
-        chrome_driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()), options=chrome_options)
 
         chrome_options.binary_location = "/usr/bin/google-chrome"
 
         # 直接インストールされたChromeDriverのパスを指定します
         service = ChromeService(executable_path="/usr/local/bin/chromedriver")
 
-        # WebDriverの初期化
-        driver = webdriver.Chrome(service=service, options=chrome_options)
+        chrome_driver = webdriver.Chrome(service=service, options=chrome_options)
 
         """
 
+        #AWS環境ではコメントアウトする
         chrome_driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
 
         #chrome_options = webdriver.ChromeOptions()
@@ -284,66 +282,38 @@ class LoadDataFromSite(generic.FormView):
         user_semester = self.request.user.student.semester
         user_department = self.request.user.student.department
 
-        #経済学部の処理を記述
-        if all([user_grade == '1年', user_semester == "後期", user_faculty == "経済学部"]):
-            for i in range(1):
+        #4年生だけHTML構造が変わるため、処理を分ける。
+        if all([user_grade == '4年', user_faculty == "経済学部"]):
+            
+          for i in range(9):
+            scrape_and_save_data(chrome_driver, i, self.request.user, first_index=43)
+          
+          return redirect("total")
+
+        #4年生以外の経済学部の処理を記述
+        elif all([user_faculty == "経済学部"]):
+            for i in range(9):
               scrape_and_save_data(chrome_driver, i, self.request.user)
     
-            return redirect("list")
-
-        elif all([user_grade == '2年',user_semester == "前期", user_faculty == "経済学部"]):   
-          for i in range(2):
-            scrape_and_save_data(chrome_driver, i, self.request.user)
-    
-          return redirect("list")
-
-        elif all([user_grade == '2年',user_semester == "後期", user_faculty == "経済学部"]):
-          for i in range(3):
-            scrape_and_save_data(chrome_driver, i, self.request.user)
-    
-          return redirect("list")
-
-        elif all([user_grade == '3年', user_semester == "前期", user_faculty == "経済学部"]):
-          for i in range(4):
-            scrape_and_save_data(chrome_driver, i, self.request.user)
-    
-          return redirect("list")
-
-        elif all([user_grade == '3年', user_semester == "後期", user_faculty == "経済学部"]):
-
-          for i in range(5):
-            scrape_and_save_data(chrome_driver, i, self.request.user)
-          return redirect("list")
-
-        elif all([user_grade == '4年', user_semester == "前期", user_faculty == "経済学部"]):
-
-          for i in range(6):
-            scrape_and_save_data(chrome_driver, i, self.request.user, first_index=10)    
-          return redirect("list")
-
-        elif all([user_grade == '4年', user_semester == "後期", user_faculty == "経済学部"]):
-            
-          for i in range(7):
-            scrape_and_save_data(chrome_driver, i, self.request.user, first_index=10)
-          return redirect("list")
+            return redirect("total")
         
         #経営学部の処理を記述
         elif (user_department == 'キャリアマネジメント学科' or user_department =='経営学科') and  user_faculty == "経営学部":
             #成績情報を取得
           for i in range(1):
             scrape_faculty_of_business(chrome_driver, self.request.user)
-          return redirect("list")
+          return redirect("total")
 
         elif all([user_grade == '3年',  user_faculty == "経営学部"]):
           for i in range(1):
             scrape_faculty_of_business(chrome_driver, i, self.request.user)
-          return redirect("list")
+          return redirect("total")
 
         elif all([user_grade == '4年', user_faculty == "経営学部"]):
 
           for i in range(1):
             scrape_faculty_of_business(chrome_driver, i, self.request.user)
-          return redirect("list")
+          return redirect("total")
         
         #法律学部の処理を記述
         elif all([user_grade == '1年', user_faculty == "法学部", user_semester == "後期"]):
@@ -387,18 +357,6 @@ class LoadDataFromSite(generic.FormView):
               scrape_faculty_of_low(chrome_driver, i, self.request.user)
     
             return redirect("list")
-
-
-"""
-    def form_valid(self, form):
-      object = form.save(commit=False)
-      object.user_name = self.request.user
-      object.save()
-      return super().form_valid(form)
-
-    def get_success_url(self):
-      return resolve_url('list', kwargs={'pk': self.object.id})  
-"""
 
 class SubjectUpdateView(LoginRequiredMixin, UpdateView):
   model = Subject
@@ -501,7 +459,9 @@ class SignUpView(CreateView):
             return self.form_invalid(form)
 
     def form_valid(self, form, form2):
-        user = form.save()
+        user = form.save(commit=False)
+        user.email = user.username
+        user.save()
         login(self.request, user)
         self.object = user
 
@@ -512,7 +472,7 @@ class SignUpView(CreateView):
         return HttpResponseRedirect(self.get_success_url())
 
 class PasswordChange(LoginRequiredMixin, PasswordChangeView):
-  success_url = reverse_lazy('crud:password_change_done')
+  success_url = reverse_lazy('password_change_done')
   template_name = 'crud/password_change.html'
 
   def get_context_data(self, **kwargs):
@@ -529,7 +489,7 @@ class MyPasswordReset(PasswordResetView):
   template_name = 'crud/password_reset_form.html'
   success_url = reverse_lazy('password_reset_done')
 
-class MyPasswordResetConfirm(PasswordResetCompleteView):
+class MyPasswordResetConfirm(PasswordResetConfirmView):
   success_url = reverse_lazy('password_reset_complete')
   template_name = 'crud/password_reset_confirm.html'
 
@@ -591,19 +551,19 @@ def calculate_economics(request, promotion_index, user_grade):
     department_subject = filtered_department.aggregate(Sum('credit'))['credit__sum']
     rest_department = 28 - (department_subject or 0)
 
-    filtered_remedial = Subject.objects.filter(category_id = 32, user=request.user)
+    filtered_remedial = Subject.objects.filter(category_id = 9, user=request.user)
     remedial_subject = filtered_remedial.aggregate(Sum('credit'))['credit__sum']
 
-    filtered_information = Subject.objects.filter(category_id = 10,  user=request.user)
+    filtered_information = Subject.objects.filter(category_id = 6,  user=request.user)
     information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
     rest_infomation = 8 - (information_subject or 0)
 
     #分野科目
-    filterd_field = Subject.objects.filter(category_id = 6, user=request.user)
+    filterd_field = Subject.objects.filter(category_id = 7, user=request.user)
     field_subject = filterd_field.aggregate(Sum('credit'))['credit__sum']
 
     #自由科目
-    filtered_free = Subject.objects.filter(category_id = 31, user=request.user)
+    filtered_free = Subject.objects.filter(category_id = 8, user=request.user)
     free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
 
     specialize_subject = (gakubu_subject or 0) + (department_subject or 0)+ (field_subject or 0) + (information_subject or 0) + (remedial_subject or 0)
@@ -615,20 +575,8 @@ def calculate_economics(request, promotion_index, user_grade):
     total_credit = (kyoutu or 0) + (foreign_language or 0) + (specialize_subject or 0) 
     #total_credit = all_credit - (free_subject or 0)
 
-    # #2年生へへ進級するために必要な専門科目
-    # promotion_specialize = 4 - (specialize_subject or 0)
+    promotion_specialize = 4 - (specialize_subject or 0)
 
-    promotion_specialize = None
-    rest_promotion = None
-    
-    if user_grade == '1年':
-        promotion_specialize = 4 - (specialize_subject or 0)
-    elif user_grade != '4年':
-        rest_promotion = promotion_index - (total_credit or 0)
-    else:
-        pass
-
-    #3年生への進級要件
     rest_promotion = promotion_index - (total_credit or 0)
 
     rest_credit = 128 - (total_credit or 0 )
@@ -643,10 +591,7 @@ def calculate_economics(request, promotion_index, user_grade):
         'rest_foreign': rest_foreign, 'free_subject': free_subject, 'rest_promotion': rest_promotion, 'filtered_required': filtered_required,
         'required_list': required_list, 
     }
-    if user_grade == '1年生':
-      response_dict['promotion_specialize'] = 4 - (specialize_subject or 0)
-    elif user_grade != '4年生':
-      response_dict['rest_promotion'] = promotion_index - (total_credit or 0)
+
     return response_dict
 
 def calculate_business(request, promotion_index, user_grade):
@@ -663,33 +608,33 @@ def calculate_business(request, promotion_index, user_grade):
 
     filtered_first = Subject.objects.filter(category_id = 2, user=request.user)
     first_language = filtered_first.aggregate(Sum('credit'))['credit__sum']
-    rest_fisrt = 14 - (first_language or 0)
+    rest_fisrt = 12 - (first_language or 0)
 
     filtered_second = Subject.objects.filter(category_id = 3, user=request.user)
     second_language = filtered_second.aggregate(Sum('credit'))['credit__sum']
     rest_second = 2 - (second_language or 0)
 
     #基礎科目の処理
-    filtered_basic = Subject.objects.filter(category_id = 7, user=request.user)
+    filtered_basic = Subject.objects.filter(category_id = 10, user=request.user)
     basic_subject = filtered_basic.aggregate(Sum('credit'))['credit__sum']
     rest_basic = 14 - (basic_subject or 0)
 
     #基幹科目の処理
-    filtered_core = Subject.objects.filter(category_id = 9, user=request.user)
+    filtered_core = Subject.objects.filter(category_id = 12, user=request.user)
     core_subject = filtered_core.aggregate(Sum('credit'))['credit__sum']
     rest_core = 32 - (core_subject or 0)
 
     #関連科目の処理
-    filtered_relate = Subject.objects.filter(category_id = 11, user=request.user)
+    filtered_relate = Subject.objects.filter(category_id = 17, user=request.user)
     relate_subject = filtered_relate.aggregate(Sum('credit'))['credit__sum']
 
     #情報科目の処理
-    filtered_information = Subject.objects.filter(category_id = 8,  user=request.user)
+    filtered_information = Subject.objects.filter(category_id = 11,  user=request.user)
     information_subject = filtered_information.aggregate(Sum('credit'))['credit__sum']
-    rest_infomation = 10 - (information_subject or 0)
+    rest_information = 10 - (information_subject or 0)
 
     #総合科目の処理
-    filterd_comprehensive = Subject.objects.filter(category_id = 12, user=request.user)
+    filterd_comprehensive = Subject.objects.filter(category_id = 13, user=request.user)
     comprehensive_subject = filterd_comprehensive.aggregate(Sum('credit'))['credit__sum']
     rest_comprehensive = 8 - (comprehensive_subject or 0)
     
@@ -698,11 +643,11 @@ def calculate_business(request, promotion_index, user_grade):
     free_subject = filtered_free.aggregate(Sum('credit'))['credit__sum']
 
     #他コース科目の処理
-    filtered_other_course = Subject.objects.filter(category_id = 13, user=request.user) 
+    filtered_other_course = Subject.objects.filter(category_id = 14, user=request.user) 
     other_course = filtered_other_course.aggregate(Sum('credit'))['credit__sum']
 
     #他学科科目の処理
-    filtered_other_subject = Subject.objects.filter(category_id = 14, user=request.user)
+    filtered_other_subject = Subject.objects.filter(category_id = 15, user=request.user)
     other_subject = filtered_other_subject.aggregate(Sum('credit'))['credit__sum']
 
     #専門科目の処理
@@ -718,14 +663,8 @@ def calculate_business(request, promotion_index, user_grade):
 
     rest_credit = 124 - (total_credit or 0 )
 
-    #2年生次進級に必要な専門科目,2,3,4年次へ進級するための必要単位
-    promotion_specialize = None
-    rest_promotion = None
-
-    if user_grade == '1年':
-      promotion_specialize = 4 - (specialize_subject or 0)
-    else:
-      pass
+    promotion_specialize = 4 - (specialize_subject or 0)
+    rest_promotion = promotion_index - (total_credit or 0)
 
     response_dict = { 'kyoutu':kyoutu, 'first_language': first_language, 'second_language': second_language,
               'basic_subject': basic_subject, 'core_subject': core_subject, 'comprehensive_subject': comprehensive_subject,
@@ -733,11 +672,9 @@ def calculate_business(request, promotion_index, user_grade):
               'other_subject': other_subject, 'specialize_subject': specialize_subject, 'foreign_language': foreign_language,
               'total_credit': total_credit, 'rest_credit': rest_credit, 'rest_kyoutu': rest_kyoutu, 'rest_first': rest_fisrt,
               'rest_second': rest_second, 'rest_basic': rest_basic, 'rest_core': rest_core, 'rest_comprehensive': rest_comprehensive,
-              'rest_infomation': rest_infomation, 'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject,
-              'rest_promotion': rest_promotion, 'required_list': required_list, 'filtered_required': filtered_required
+              'rest_information': rest_information, 'rest_specialize': rest_specialize, 'rest_foreign': rest_foreign, 'free_subject': free_subject,
+              'rest_promotion': rest_promotion, 'required_list': required_list, 'filtered_required': filtered_required, 'promotion_specialize': promotion_specialize,
     }
-    if user_grade == '1年':
-      response_dict['promotion_specialize'] = 4 - (specialize_subject or 0)
 
     return response_dict
 

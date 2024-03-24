@@ -1,11 +1,24 @@
 {% extends "base.html" %}
  
-{% block title %}トップ画面{% endblock %}
+{% block title %}トップ{% endblock %}
+
+{% block header %}
+<section class="py-5 text-center container">
+  <div class="row py-lg-5">
+    <div class="col-lg-8 col-md-8 mx-auto">
+      <h1 class="fw-light">単位管理.com</h1>
+      <p class="lead text-muted">卒業までに必要な単位が一目で分かる！</p>
+      <p class="pt-2 fs-5">
+
+        <button class="btn btn-success" type="button" onclick="location.href='{% url 'signup' %}'">新規登録</button>
+        <button class="btn btn-outline-primary" type="button" onclick="location.href='{% url 'login' %}'">ログインはこちら</button>
+      </p>
+    </div>
+  </div>
+</section>
+{% endblock header %}
+
 {% block content %}
-<h1>単位管理.com</h1>
-<p>履修要項を確認せずに卒業までに必要な単位数を一目でチェックできます。</p>
 
-<button class="btn btn-success" type="button" onclick="location.href='{% url 'signup' %}'">新規登録</button>
 
-<button class="btn btn-outline-primary" type="button" onclick="location.href='{% url 'login' %}'">ログインはこちら</button>
 {% endblock %}
